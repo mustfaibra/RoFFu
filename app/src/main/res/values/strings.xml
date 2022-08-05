@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">App Template</string>
+    <string name="no_available_data">No available data</string>
+    <string name="net_conn_err_title">Network connection error!</string>
+    <string name="no_avail_data_err_title">No available data!</string>
+    <string name="unknown_err_title">Unknown error!</string>
+    <string name="net_conn_err_message">Please make sure that you are connected to network and try again.</string>
+    <string name="no_avail_data_err_body">It seems like there are no data for now, coming soon.</string>
+    <string name="unknown_err_body">An unknown error has occurred, please try again.</string>
+    <string name="arabic">العربية</string>
+    <string name="english">English</string>
+    <string name="home">Home</string>
+    <string name="search">Search</string>
+    <string name="notifications">Notifications</string>
+    <string name="profile">Profile</string>
+    <string name="continue_next">Continue</string>
+    <string name="get_started">Get Started</string>
+    <string name="cart">Cart</string>
+</resources>
