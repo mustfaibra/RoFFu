@@ -18,4 +18,6 @@ sealed class Screen(
     object Notifications : Screen(route = "notifications", title = R.string.notifications, icon = R.drawable.ic_notifications)
     object Search : Screen(route = "search", title = R.string.search, icon = R.drawable.ic_search)
     object Cart : Screen(route = "cart", title = R.string.cart, icon = R.drawable.ic_shopping_bag)
+
+    object ProductDetails : Screen(route = "product-details/{productId}", title = R.string.product_details)
 }

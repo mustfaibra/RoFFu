@@ -2,7 +2,7 @@ package com.mustfaibra.shoesstore.injector
 
 import android.content.Context
 import androidx.room.Room
-import com.mustfaibra.shoesstore.data.local.RoomDatabase
+import com.mustfaibra.shoesstore.data.local.RoomDb
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,6 +13,8 @@ import io.ktor.client.engine.android.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.features.logging.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 
 // 3/20/2022
@@ -26,20 +28,31 @@ object AppModule {
     @Singleton
     fun provideContextInstance(@ApplicationContext cxt: Context) = cxt
 
+    /** Provide Coroutine scope */
+    @Singleton
+    @Provides
+    fun provideCoroutineScope() = CoroutineScope(SupervisorJob())
+
     /** A function to provide a single instance of the local database throughout our app */
     @Provides
     @Singleton
-    fun provideRoomInstance(@ApplicationContext context: Context) =
-        Room.databaseBuilder(
+    fun provideRoomInstance(
+        @ApplicationContext context: Context,
+        populateDataCallback: RoomDb.PopulateDataClass,
+    ) = Room
+        .databaseBuilder(
             context.applicationContext,
-            RoomDatabase::class.java,
-            "TempLocalDatabase"
-        ).build()
+            RoomDb::class.java,
+            "ShoesStoreDatabase",
+        )
+        .fallbackToDestructiveMigration()
+        .addCallback(populateDataCallback)
+        .build()
 
     /** A function to provide a single instance of the local database DAO throughout our app */
     @Provides
     @Singleton
-    fun provideDaoInstance(db: RoomDatabase) = db.getDao()
+    fun provideDaoInstance(db: RoomDb) = db.getDao()
 
 
     /** provide our api client instance */

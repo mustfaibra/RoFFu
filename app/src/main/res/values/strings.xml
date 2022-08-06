@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">App Template</string>
+    <string name="app_name">Shoes Store</string>
     <string name="no_available_data">No available data</string>
     <string name="net_conn_err_title">Network connection error!</string>
     <string name="no_avail_data_err_title">No available data!</string>
@@ -16,4 +16,5 @@
     <string name="continue_next">Continue</string>
     <string name="get_started">Get Started</string>
     <string name="cart">Cart</string>
+    <string name="product_details">Product Details</string>
 </resources>

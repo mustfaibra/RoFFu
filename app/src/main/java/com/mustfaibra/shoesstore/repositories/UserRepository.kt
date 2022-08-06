@@ -20,4 +20,6 @@ class UserRepository @Inject constructor(
             password = password,
             name = name,
         )
+
+    suspend fun getLoggedUser() = dao.getLoggedUser()
 }

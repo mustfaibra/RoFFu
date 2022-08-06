@@ -11,8 +11,8 @@ private val DarkColorPalette = darkColors(
     primary = Blue,
     primaryVariant = DarkBlue,
     secondary = Orange,
-    background = LightGray,
-    surface = Color.White,
+    background = Color.White,
+    surface = LightGray,
     onPrimary = Color.White,
     onSecondary = Color.White,
     onBackground = Black,
@@ -23,8 +23,8 @@ private val LightColorPalette = lightColors(
     primary = Blue,
     primaryVariant = DarkBlue,
     secondary = Orange,
-    background = LightGray,
-    surface = Color.White,
+    background = Color.White,
+    surface = LightGray,
     onPrimary = Color.White,
     onSecondary = Color.White,
     onBackground = Black,
@@ -32,7 +32,7 @@ private val LightColorPalette = lightColors(
 )
 
 @Composable
-fun AppTemplateTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
+fun StoreTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colors = if (darkTheme) {
         DarkColorPalette
     } else {

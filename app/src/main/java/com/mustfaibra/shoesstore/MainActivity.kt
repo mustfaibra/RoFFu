@@ -23,7 +23,7 @@ import com.mustfaibra.shoesstore.providers.LocalLanguage
 import com.mustfaibra.shoesstore.providers.LocalNavHost
 import com.mustfaibra.shoesstore.screens.holder.HolderScreen
 import com.mustfaibra.shoesstore.sealed.Language
-import com.mustfaibra.shoesstore.ui.theme.AppTemplateTheme
+import com.mustfaibra.shoesstore.ui.theme.StoreTheme
 import com.mustfaibra.shoesstore.utils.LocalScreenSize
 import com.mustfaibra.shoesstore.utils.LocaleHelper
 import com.mustfaibra.shoesstore.utils.getScreenSize
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
             /** Getting screen size */
             val size = LocalContext.current.getScreenSize()
 
-            AppTemplateTheme {
+            StoreTheme {
                 CompositionLocalProvider(
                     LocalLayoutDirection provides if (showRTL) LayoutDirection.Rtl else LayoutDirection.Ltr,
                     LocalLanguage provides currentLanguage,

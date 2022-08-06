@@ -172,3 +172,17 @@ fun Modifier.addFadeAnimation(from: Float, to: Float, duration: Int): Modifier =
     }
     this.alpha(animatedContentAlpha)
 }
+
+fun String.getValidColor() = when(this){
+    "white" -> 0xFFFFFFFF
+    "gold" -> 0xFFFFC107
+    "yellow" -> 0xFFFFEB3B
+    "green" -> 0xFF4CAF50
+    "dark-green" -> 0xFF3C613E
+    "lemon" -> 0xFF44FF00
+    "red" -> 0xFFF44336
+    "black" -> 0xFF000000
+    "gray" -> 0xFF494949
+    "pink" -> 0xFFC95E90
+    else -> 0xFF000000
+}

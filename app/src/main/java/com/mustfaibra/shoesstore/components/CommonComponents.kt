@@ -104,7 +104,7 @@ fun CustomInputField(
                         Text(
                             text = placeholder,
                             style = textStyle,
-                            color = textColor.copy(alpha = 0.5f),
+                            color = textColor.copy(alpha = 0.3f),
                             maxLines = if (requireSingleLine) 1 else Int.MAX_VALUE,
                         )
                     }
