@@ -1,5 +1,8 @@
 package com.mustfaibra.shoesstore.components
 
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,10 +26,12 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -42,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
 import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.sealed.MenuOption
 import com.mustfaibra.shoesstore.sealed.Screen
@@ -212,7 +218,7 @@ fun AppBottomNavItem(
         modifier = modifier
             .clip(MaterialTheme.shapes.medium)
             .background(
-                if (active) MaterialTheme.colors.primary.copy(alpha = 0.2f)
+                if (active) MaterialTheme.colors.primary
                 else Color.Transparent,
             )
             .clickable {
@@ -224,8 +230,8 @@ fun AppBottomNavItem(
         Icon(
             painter = painterResource(id = icon),
             contentDescription = title,
-            tint = if (active) MaterialTheme.colors.primaryVariant
-            else MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
+            tint = if (active) MaterialTheme.colors.onPrimary
+                else MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
             modifier = Modifier
                 .size(Dimension.smIcon)
         )
@@ -289,4 +295,33 @@ fun PopupOptionsMenu(
             }
         }
     }
+}
+
+@Composable
+fun ReactiveCartIcon(
+    modifier: Modifier = Modifier,
+    isOnCart: Boolean,
+    onCartChange: () -> Unit,
+) {
+    val transition =
+        updateTransition(targetState = isOnCart, label = "cart")
+
+    val tint by transition.animateColor(label = "tint") {
+        when (it) {
+            true -> MaterialTheme.colors.primary
+            false -> MaterialTheme.colors.onBackground.copy(alpha = 0.5f)
+        }
+    }
+    val rotation by transition.animateFloat(label = "rotation") { if (it) 360f else -360f }
+    Icon(
+        painter = painterResource(id = R.drawable.ic_shopping_bag),
+        contentDescription = null,
+        modifier = modifier
+            .rotate(rotation)
+            .clip(CircleShape)
+            .clickable { onCartChange() }
+            .padding(Dimension.elevation)
+            .size(20.dp),
+        tint = tint
+    )
 }

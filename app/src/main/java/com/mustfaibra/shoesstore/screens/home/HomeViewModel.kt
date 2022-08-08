@@ -4,31 +4,89 @@ package com.mustfaibra.shoesstore.screens.home
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mustfaibra.shoesstore.models.Advertisement
+import com.mustfaibra.shoesstore.models.Manufacturer
+import com.mustfaibra.shoesstore.repositories.BrandsRepository
+import com.mustfaibra.shoesstore.repositories.ProductsRepository
+import com.mustfaibra.shoesstore.sealed.DataResponse
+import com.mustfaibra.shoesstore.sealed.Error
 import com.mustfaibra.shoesstore.sealed.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
  * A View model with hiltViewModel annotation that is used to access this view model everywhere needed
  */
 @HiltViewModel
-class HomeViewModel @Inject constructor() : ViewModel() {
-    val uiState = mutableStateOf<UiState>(UiState.Idle)
+class HomeViewModel @Inject constructor(
+    private val brandsRepository: BrandsRepository,
+) : ViewModel() {
     val searchQuery = mutableStateOf("")
 
     val homeAdvertisementsUiState = mutableStateOf<UiState>(UiState.Success)
     val advertisements: MutableList<Advertisement> = mutableStateListOf()
+
+    val brandsUiState = mutableStateOf<UiState>(UiState.Loading)
+    val brands: MutableList<Manufacturer> = mutableStateListOf()
+
+    val currentSelectedBrandIndex = mutableStateOf(0)
+
+    fun updateCurrentSelectedBrandId(index: Int) {
+        currentSelectedBrandIndex.value = index
+    }
 
     fun updateSearchInputValue(value: String) {
         this.searchQuery.value = value
     }
 
     fun getHomeAdvertisements() {
-        if(advertisements.isNotEmpty()) return
+        if (advertisements.isNotEmpty()) return
+
         /** start loading */
         homeAdvertisementsUiState.value = UiState.Loading
+        viewModelScope.launch {
+            brandsRepository.getBrandsAdvertisements().let {
+                when (it) {
+                    is DataResponse.Success -> {
+                        /** Got a response from the server successfully */
+                        homeAdvertisementsUiState.value = UiState.Success
+                        it.data?.let { responseAds ->
+                            advertisements.addAll(responseAds)
+                        }
+                    }
+                    is DataResponse.Error -> {
+                        /** An error happened when fetching data from the server */
+                        homeAdvertisementsUiState.value =
+                            UiState.Error(error = it.error ?: Error.Network)
+                    }
+                }
+            }
+        }
+    }
 
-        advertisements.addAll(listOf())
+    fun getBrandsWithProducts() {
+        if (brands.isNotEmpty()) return
+
+        /** start loading */
+        brandsUiState.value = UiState.Loading
+        viewModelScope.launch {
+            brandsRepository.getBrandsWithProducts().let {
+                when (it) {
+                    is DataResponse.Success -> {
+                        /** Got a response from the server successfully */
+                        brandsUiState.value = UiState.Success
+                        it.data?.let { responseBrands ->
+                            brands.addAll(responseBrands)
+                        }
+                    }
+                    is DataResponse.Error -> {
+                        /** An error happened when fetching data from the server */
+                        brandsUiState.value = UiState.Error(error = it.error ?: Error.Network)
+                    }
+                }
+            }
+        }
     }
 }

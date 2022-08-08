@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -37,7 +38,7 @@ import com.mustfaibra.shoesstore.ui.theme.Dimension
 import com.mustfaibra.shoesstore.utils.addMoveAnimation
 
 @Composable
-fun OnboardScreen(onboardViewModel: OnboardViewModel = hiltViewModel()) {
+fun OnboardScreen(onboardViewModel: OnboardViewModel = hiltViewModel(), onBoardFinished: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -45,7 +46,7 @@ fun OnboardScreen(onboardViewModel: OnboardViewModel = hiltViewModel()) {
         verticalArrangement = Arrangement.spacedBy(Dimension.pagePadding),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val controller = LocalNavHost.current
+        val context = LocalContext.current
         val composition by rememberLottieComposition(
             spec = LottieCompositionSpec.RawRes(R.raw.walking_shoes),
         )
@@ -73,15 +74,6 @@ fun OnboardScreen(onboardViewModel: OnboardViewModel = hiltViewModel()) {
             verticalArrangement = Arrangement.spacedBy(Dimension.sm),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-
-//            val countDownTimer = object : CountDownTimer(2000,200){
-//                override fun onTick(p0: Long) {
-//
-//                }
-//                override fun onFinish() {
-//                    TODO("Not yet implemented")
-//                }
-//            }
             Text(
                 modifier = Modifier
                     .addMoveAnimation(
@@ -141,12 +133,8 @@ fun OnboardScreen(onboardViewModel: OnboardViewModel = hiltViewModel()) {
                 ),
                 onButtonClicked = {
                     /** First we should update app launched flag */
-//                    onboardViewModel.updateLaunchState(context = context)
-                    controller.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Onboard.route) {
-                            inclusive = true
-                        }
-                    }
+                    onboardViewModel.updateLaunchState(context = context)
+                    onBoardFinished()
                 },
                 contentColor = MaterialTheme.colors.onPrimary,
             )

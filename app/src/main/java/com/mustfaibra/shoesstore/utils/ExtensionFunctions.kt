@@ -25,6 +25,12 @@ import androidx.core.text.layoutDirection
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
+import com.mustfaibra.shoesstore.models.CartItem
+import com.mustfaibra.shoesstore.models.CartItemWithProduct
+import com.mustfaibra.shoesstore.models.LocalManufacturer
+import com.mustfaibra.shoesstore.models.LocalProduct
+import com.mustfaibra.shoesstore.models.Manufacturer
+import com.mustfaibra.shoesstore.models.Product
 import com.mustfaibra.shoesstore.sealed.DataResponse
 import com.mustfaibra.shoesstore.sealed.Error
 import com.mustfaibra.shoesstore.sealed.Orientation
@@ -173,7 +179,7 @@ fun Modifier.addFadeAnimation(from: Float, to: Float, duration: Int): Modifier =
     this.alpha(animatedContentAlpha)
 }
 
-fun String.getValidColor() = when(this){
+fun String.getValidColor() = when (this) {
     "white" -> 0xFFFFFFFF
     "gold" -> 0xFFFFC107
     "yellow" -> 0xFFFFEB3B
@@ -185,4 +191,40 @@ fun String.getValidColor() = when(this){
     "gray" -> 0xFF494949
     "pink" -> 0xFFC95E90
     else -> 0xFF000000
+}
+
+fun Double.getDiscountedValue(discount: Int) = this - this.times((discount.div(100)))
+
+fun List<LocalManufacturer>.getStructuredManufacturers(): List<Manufacturer> {
+    return this.map { localManufacturer ->
+        localManufacturer.manufacturer.also {
+            it.products.addAll(localManufacturer.products.getStructuredProducts())
+        }
+    }
+}
+
+fun List<LocalProduct>.getStructuredProducts(): List<Product> {
+    return this.map { localProduct ->
+        localProduct.product.also { product ->
+            product.manufacturer = localProduct.manufacturer
+            product.copies = localProduct.copies
+            product.reviews = localProduct.reviews
+            product.sizes = localProduct.sizes
+        }
+    }
+}
+
+fun LocalProduct.getStructuredProduct() = this.product.also { product ->
+    product.manufacturer = this.manufacturer
+    product.copies = this.copies
+    product.reviews = this.reviews
+    product.sizes = this.sizes
+}
+
+fun MutableList<CartItemWithProduct>.getStructuredCartItems(): MutableList<CartItem> {
+    return this.map {
+        it.details.apply {
+            this.product = it.product.getStructuredProduct()
+        }
+    }.toMutableList()
 }

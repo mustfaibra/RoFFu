@@ -7,12 +7,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,9 +26,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,11 +40,15 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.components.CustomInputField
+import com.mustfaibra.shoesstore.components.DrawableButton
+import com.mustfaibra.shoesstore.components.IconButton
+import com.mustfaibra.shoesstore.components.ReactiveCartIcon
 import com.mustfaibra.shoesstore.models.Advertisement
-import com.mustfaibra.shoesstore.models.Manufacturer
 import com.mustfaibra.shoesstore.sealed.UiState
 import com.mustfaibra.shoesstore.ui.theme.Dimension
 import com.mustfaibra.shoesstore.ui.theme.StoreTheme
+import com.mustfaibra.shoesstore.utils.getDiscountedValue
+import com.mustfaibra.shoesstore.utils.getDp
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -46,11 +56,26 @@ import timber.log.Timber
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
+    cartProductsIds: List<Int>,
+    onProductClicked: (productId: Int) -> Unit,
+    onCartStateChanged: (productId: Int) -> Unit,
 ) {
+    LaunchedEffect(key1 = Unit) {
+        homeViewModel.getHomeAdvertisements()
+        homeViewModel.getBrandsWithProducts()
+    }
+
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
-    val advertisementsUiState by remember { homeViewModel.homeAdvertisementsUiState }
     val searchQuery by remember { homeViewModel.searchQuery }
+
+    val advertisementsUiState by remember { homeViewModel.homeAdvertisementsUiState }
+    val advertisements = homeViewModel.advertisements
+
+    val brandsUiState by remember { homeViewModel.brandsUiState }
+    val brands = homeViewModel.brands
+
+    val currentSelectedBrandIndex by remember { homeViewModel.currentSelectedBrandIndex }
 
     /** Now we configure the pager to auto scroll each 2 seconds, using Handler */
     val mainHandler = Handler(Looper.getMainLooper())
@@ -84,21 +109,55 @@ fun HomeScreen(
         mainHandler.post(autoPagerScrollCallback)
     }
 
-    LazyColumn(
+    LazyVerticalGrid(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.background),
+        columns = GridCells.Fixed(2),
+        horizontalArrangement = Arrangement.spacedBy(Dimension.pagePadding),
         verticalArrangement = Arrangement.spacedBy(Dimension.pagePadding),
+        contentPadding = PaddingValues(horizontal = Dimension.pagePadding),
     ) {
+        item(
+            span = {
+                GridItemSpan(2)
+            }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colors.background),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ){
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = "Discover",
+                    style = MaterialTheme.typography.h2,
+                )
 
-
+                DrawableButton(
+                    painter = painterResource(id = R.drawable.ic_filtering_slidebars),
+                    onButtonClicked = {},
+                    backgroundColor = MaterialTheme.colors.background,
+                    iconSize = Dimension.smIcon,
+                    iconTint = MaterialTheme.colors.onBackground.copy(alpha = 0.8f),
+                    shape = MaterialTheme.shapes.small,
+                )
+            }
+        }
+        /** Handling what to show depending on advertisement ui state */
         when (advertisementsUiState) {
             is UiState.Idle -> {}
             is UiState.Loading -> {
             }
             is UiState.Success -> {
                 /** Search field section */
-                item {
+                item(
+                    span = {
+                        GridItemSpan(2)
+                    }
+                ) {
                     SearchField(
                         value = searchQuery,
                         onValueChange = {
@@ -113,23 +172,68 @@ fun HomeScreen(
                     )
                 }
                 /** Advertisements section */
-                item {
+                item(
+                    span = {
+                        GridItemSpan(2)
+                    }
+                ) {
                     AdvertisementsPager(
                         pagerState = pagerState,
-                        advertisements = listOf(
-                            Advertisement(1, R.drawable.air_huarache_gold_black_ads, 1, 0),
-                            Advertisement(2, R.drawable.pegasus_trail_gortex_ads, 2, 0),
-                            Advertisement(3, R.drawable.blazer_low_black_ads, 3, 0),
-                        ),
+                        advertisements = advertisements,
                         onAdvertiseClicked = {}
                     )
                 }
-                /** Shoes companies row */
-                item {
-                    ManufacturersSection()
-                }
             }
             is UiState.Error -> {}
+        }
+
+        /** Handling what to show depending on brands ui state */
+        when (brandsUiState) {
+            is UiState.Idle -> {
+                /** it's idle, not sure */
+
+            }
+            is UiState.Loading -> {
+                /** Still loading */
+
+            }
+            is UiState.Success -> {
+                /** Loading finished successfully, Shoes brands row first! */
+                item(
+                    span = {
+                        GridItemSpan(2)
+                    }
+                ) {
+                    ManufacturersSection(
+                        brands = brands.map { Triple(it.id, it.name, it.icon) },
+                        activeBrandIndex = currentSelectedBrandIndex,
+                    ) {
+                        if (it != currentSelectedBrandIndex) {
+                            homeViewModel.updateCurrentSelectedBrandId(index = it)
+                        }
+                    }
+                }
+                /** Show selected brand's data */
+                items(brands[currentSelectedBrandIndex].products) { product ->
+                    ProductItemLayout(
+                        modifier = Modifier.fillMaxWidth(),
+                        image = product.image,
+                        price = product.price,
+                        title = product.name,
+                        discount = product.discount,
+                        onCart = product.id in cartProductsIds,
+                        onProductClicked = {
+                            onProductClicked(product.id)
+                        },
+                        onChangeCartState = {
+                            onCartStateChanged(product.id)
+                        }
+                    )
+                }
+            }
+            is UiState.Error -> {
+                /** An error occur */
+            }
         }
     }
 }
@@ -143,7 +247,6 @@ fun SearchField(
 ) {
     CustomInputField(
         modifier = Modifier
-            .padding(horizontal = Dimension.pagePadding)
             .fillMaxWidth(),
         value = value,
         onValueChange = onValueChange,
@@ -191,7 +294,6 @@ fun AdvertisementsPager(
             count = advertisements.size,
             state = pagerState,
             itemSpacing = Dimension.pagePadding.times(2),
-            contentPadding = PaddingValues(horizontal = Dimension.pagePadding),
         ) {
             val advertisement = advertisements[this.currentPage]
             Image(
@@ -225,8 +327,8 @@ fun AdvertisementsPager(
                         .height(Dimension.sm)
                         .clip(CircleShape)
                         .background(
-                            if (pagerState.currentPage == index) MaterialTheme.colors.secondary
-                            else MaterialTheme.colors.secondary.copy(alpha = 0.2f)
+                            if (pagerState.currentPage == index) MaterialTheme.colors.primary
+                            else MaterialTheme.colors.primary.copy(alpha = 0.4f)
                         )
                 )
             }
@@ -236,9 +338,135 @@ fun AdvertisementsPager(
 
 
 @Composable
-fun ManufacturersSection() {
+fun ManufacturersSection(
+    brands: List<Triple<Int, String, Int>>,
+    activeBrandIndex: Int,
+    onBrandClicked: (index: Int) -> Unit,
+) {
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Dimension.pagePadding.div(2)),
+    ) {
+        itemsIndexed(brands) { index, (id, name, icon) ->
+            val backgroundColor = if (activeBrandIndex == index) MaterialTheme.colors.primary
+            else MaterialTheme.colors.background
 
+            val contentColor = if (activeBrandIndex == index) MaterialTheme.colors.onPrimary
+            else MaterialTheme.colors.onBackground
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Dimension.xs),
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(backgroundColor)
+                    .clickable { onBrandClicked(index) }
+                    .padding(
+                        horizontal = Dimension.md,
+                        vertical = Dimension.sm,
+                    )
+            ) {
+                Icon(
+                    modifier = Modifier.size(Dimension.smIcon),
+                    painter = painterResource(id = icon),
+                    contentDescription = null,
+                    tint = contentColor,
+                )
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.caption,
+                    color = contentColor,
+                )
+            }
+        }
+    }
 }
+
+
+@Composable
+fun ProductItemLayout(
+    modifier: Modifier = Modifier,
+    image: Int,
+    price: Double,
+    title: String,
+    discount: Int,
+    onCart: Boolean = false,
+    onProductClicked: () -> Unit,
+    onChangeCartState: () -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape = MaterialTheme.shapes.small)
+            .clickable(
+                indication = null,
+                interactionSource = MutableInteractionSource(),
+                onClick = onProductClicked
+            ),
+        verticalArrangement = Arrangement.spacedBy(Dimension.pagePadding)
+    ) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(MaterialTheme.shapes.medium)
+        ) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(this.constraints.maxHeight
+                        .div(2)
+                        .getDp())
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colors.surface),
+            )
+            Image(
+                painter = rememberImagePainter(data = image),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(MaterialTheme.shapes.medium)
+                    .rotate(-45f),
+            )
+        }
+        Column(
+            verticalArrangement = Arrangement.spacedBy(Dimension.xs)
+        ) {
+            /** Product's interactions */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                /** Price */
+                val cost = stringResource(
+                    id = R.string.x_dollar,
+                    price.getDiscountedValue(discount = discount)
+                )
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = cost,
+                    style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.SemiBold),
+                )
+                ReactiveCartIcon(
+                    isOnCart = onCart,
+                    onCartChange = onChangeCartState,
+                )
+            }
+            /** Product's name */
+            Text(
+                modifier = Modifier,
+                text = title,
+                style = MaterialTheme.typography.caption,
+                maxLines = 2,
+            )
+        }
+
+    }
+}
+
 
 @Composable
 fun Previewer() {

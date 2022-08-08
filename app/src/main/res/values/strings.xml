@@ -17,4 +17,5 @@
     <string name="get_started">Get Started</string>
     <string name="cart">Cart</string>
     <string name="product_details">Product Details</string>
+    <string name="x_dollar">$ %1$s</string>
 </resources>

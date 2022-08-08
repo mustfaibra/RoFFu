@@ -40,6 +40,11 @@ abstract class RoomDb : RoomDatabase() {
             Manufacturer(id = 1, name = "Nike", icon = R.drawable.ic_nike),
             Manufacturer(id = 2, name = "Adidas", icon = R.drawable.adidas_48),
         )
+        val advertisements = listOf(
+            Advertisement(1, R.drawable.air_huarache_gold_black_ads, 1, 0),
+            Advertisement(2, R.drawable.pegasus_trail_gortex_ads, 2, 0),
+            Advertisement(3, R.drawable.blazer_low_black_ads, 3, 0),
+        )
         val nikeProducts = listOf(
             Product(
                 id = 1,
@@ -368,6 +373,12 @@ abstract class RoomDb : RoomDatabase() {
             scope.launch {
                 manufacturers.forEach {
                     dao.insertManufacturer(it)
+                }
+            }
+            /** insert advertisements */
+            scope.launch {
+                advertisements.forEach {
+                    dao.insertAdvertisement(it)
                 }
             }
             scope.launch {

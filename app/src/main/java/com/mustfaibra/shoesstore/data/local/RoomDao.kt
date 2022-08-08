@@ -7,24 +7,24 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.mustfaibra.shoesstore.models.Advertisement
-import com.mustfaibra.shoesstore.models.CartItem
-import com.mustfaibra.shoesstore.models.CartItemWithProduct
-import com.mustfaibra.shoesstore.models.Manufacturer
-import com.mustfaibra.shoesstore.models.Product
-import com.mustfaibra.shoesstore.models.ProductColor
-import com.mustfaibra.shoesstore.models.ProductSize
-import com.mustfaibra.shoesstore.models.Review
-import com.mustfaibra.shoesstore.models.User
+import com.mustfaibra.shoesstore.models.*
 import kotlinx.coroutines.flow.Flow
 
 // 3/20/2022
 
 @Dao
 interface RoomDao {
+
+    /** Manufacturer operations */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertManufacturer(manufacturer: Manufacturer)
 
+    @Query("SELECT * FROM manufacturer")
+    suspend fun getManufacturersWithProducts(): List<LocalManufacturer>
+
+
+
+    /** Products operations */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProduct(product: Product)
 
@@ -34,11 +34,18 @@ interface RoomDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSize(productSize: ProductSize)
 
+
+
+    /** Advertisements operations */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAdvertisement(advertisement: Advertisement)
 
-    /** All Cart operations */
+    @Query("SELECT * FROM advertisement")
+    suspend fun getAdvertisements() : List<Advertisement>
 
+
+
+    /** All Cart operations */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCartItem(cartItem: CartItem)
 
@@ -55,16 +62,22 @@ interface RoomDao {
     @Query("UPDATE cart SET quantity = :quantity WHERE productId = :productId ")
     suspend fun updateCartItemQuantity(productId: Int, quantity: Int)
 
-    @Delete
-    suspend fun deleteCartItem(cartItem: CartItem)
+    @Query("DELETE FROM cart WHERE productId = :productId ")
+    suspend fun deleteCartItem(productId: Int)
 
     @Query("Delete FROM cart")
     suspend fun clearCart()
+
+
 
     /** Product reviews */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertReviews(reviews: List<Review>)
 
+
+
+    /** User operations */
     @Query("SELECT * FROM user WHERE token != null")
     suspend fun getLoggedUser(): User?
+
 }

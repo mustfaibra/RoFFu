@@ -24,7 +24,10 @@ import com.mustfaibra.shoesstore.ui.theme.Dimension
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(splashViewModel: SplashViewModel = hiltViewModel()) {
+fun SplashScreen(
+    splashViewModel: SplashViewModel = hiltViewModel(),
+    onSplashFinished: (nextDestination: Screen) -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -36,24 +39,15 @@ fun SplashScreen(splashViewModel: SplashViewModel = hiltViewModel()) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val controller = LocalNavHost.current
         val isAppLaunchedBefore by splashViewModel.isAppLaunchedBefore.collectAsState(initial = false)
         LaunchedEffect(key1 = Unit) {
             delay(3000)
             if (isAppLaunchedBefore) {
                 /** Launched before, we should go to home now */
-                controller.navigate(Screen.Home.route) {
-                    popUpTo(Screen.Splash.route) {
-                        inclusive = true
-                    }
-                }
+                onSplashFinished(Screen.Home)
             } else {
                 /** Not launched before so we should navigate to Onboard screen */
-                controller.navigate(Screen.Onboard.route) {
-                    popUpTo(Screen.Splash.route) {
-                        inclusive = true
-                    }
-                }
+                onSplashFinished(Screen.Onboard)
             }
         }
 

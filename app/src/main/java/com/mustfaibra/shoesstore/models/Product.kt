@@ -20,9 +20,9 @@ data class Product(
     @Ignore
     var manufacturer: Manufacturer? = null
     @Ignore
-    var copies: MutableList<ProductColor>? = null
+    var copies: List<ProductColor>? = null
     @Ignore
-    var reviews: MutableList<Review>? = null
+    var reviews: List<Review>? = null
     @Ignore
-    var sizes: MutableList<ProductSize>? = null
+    var sizes: List<ProductSize>? = null
 }

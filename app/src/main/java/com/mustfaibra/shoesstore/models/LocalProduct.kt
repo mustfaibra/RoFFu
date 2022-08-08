@@ -17,6 +17,11 @@ class LocalProduct(
         parentColumn = "id",
         entityColumn = "productId",
     )
+    val sizes: List<ProductSize>?,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "productId",
+    )
     val reviews: List<Review>?,
 
     )
