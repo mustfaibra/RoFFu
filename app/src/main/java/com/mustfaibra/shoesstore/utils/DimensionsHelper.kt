@@ -101,9 +101,20 @@ data class Size(
     val height: Dp,
 )
 
-/** An extension function that is used to convert the px values to a valid Dp */
+/** An extension function that is used to convert the px as Int values to a valid Dp */
 @Composable
 fun Int.getDp() : Dp{
+    val px = this
+    with(LocalDensity.current){
+        Timber.d("density is ${this.density}")
+        return px.toDp()
+    }
+}
+
+
+/** An extension function that is used to convert the px as float values to a valid Dp */
+@Composable
+fun Float.getDp() : Dp{
     val px = this
     with(LocalDensity.current){
         Timber.d("density is ${this.density}")

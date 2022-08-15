@@ -8,6 +8,7 @@ object Dimension {
     val sm = 8.dp
     val md = 16.dp
     val lg = 24.dp
+    val xl = 32.dp
 
     val pagePadding = 24.dp
 

@@ -132,7 +132,7 @@ fun HomeScreen(
             ){
                 Text(
                     modifier = Modifier.weight(1f),
-                    text = "Discover",
+                    text = stringResource(id = R.string.discover),
                     style = MaterialTheme.typography.h2,
                 )
 
@@ -448,7 +448,10 @@ fun ProductItemLayout(
                 Text(
                     modifier = Modifier.weight(1f),
                     text = cost,
-                    style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.SemiBold),
+                    style = MaterialTheme.typography.body1.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.7f),
+                    ),
                 )
                 ReactiveCartIcon(
                     isOnCart = onCart,

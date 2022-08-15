@@ -4,8 +4,12 @@ package com.mustfaibra.shoesstore.components
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.IndicationInstance
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -69,6 +73,7 @@ fun IconButton(
 @Composable
 fun DrawableButton(
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     backgroundColor: Color = MaterialTheme.colors.primary,
     iconTint: Color,
     onButtonClicked: () -> Unit,
@@ -83,9 +88,11 @@ fun DrawableButton(
             .shadow(elevation = elevation, shape = shape)
             .clip(shape)
             .background(backgroundColor)
-            .clickable {
-                onButtonClicked()
-            }
+            .clickable(
+                onClick = {
+                    if(enabled) onButtonClicked()
+                }
+            )
             .padding(paddingValues = paddingValue)
     ) {
         Icon(

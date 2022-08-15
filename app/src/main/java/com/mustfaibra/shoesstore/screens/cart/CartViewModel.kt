@@ -1,6 +1,7 @@
 package com.mustfaibra.shoesstore.screens.cart
 
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -27,6 +28,8 @@ class CartViewModel @Inject constructor(
     val cartItems: MutableList<CartItem> = mutableStateListOf()
     val totalPrice = mutableStateOf(0.0)
     val isSyncingCart = mutableStateOf(false)
+    private val _cartOptionsMenuExpanded = mutableStateOf(false)
+    val cartOptionsMenuExpanded: State<Boolean> = _cartOptionsMenuExpanded
 
     init {
         viewModelScope.launch {
@@ -87,5 +90,9 @@ class CartViewModel @Inject constructor(
         viewModelScope.launch {
 
         }
+    }
+
+    fun toggleOptionsMenuExpandState() {
+        _cartOptionsMenuExpanded.value = !_cartOptionsMenuExpanded.value
     }
 }

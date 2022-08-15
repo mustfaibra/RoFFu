@@ -33,24 +33,24 @@ val Typography = Typography(
         fontSize = 28.sp
     ),
     h4 = TextStyle(
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 25.sp
     ),
     h5 = TextStyle(
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 22.sp
     ),
     body1 = TextStyle(
-        fontWeight = FontWeight.Bold,
-        fontSize = 19.sp
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 17.sp
     ),
     body2 = TextStyle(
         fontWeight = FontWeight.Medium,
-        fontSize = 17.sp
+        fontSize = 16.sp
     ),
     button = TextStyle(
-        fontWeight = FontWeight.Medium,
-        fontSize = 20.sp
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 19.sp
     ),
     caption = TextStyle(
         fontWeight = FontWeight.Normal,

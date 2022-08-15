@@ -1,22 +1,15 @@
 package com.mustfaibra.shoesstore.screens.holder
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -24,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.mustfaibra.shoesstore.components.AppBottomNav
 import com.mustfaibra.shoesstore.providers.LocalNavHost
+import com.mustfaibra.shoesstore.screens.cart.CartScreen
 import com.mustfaibra.shoesstore.screens.home.HomeScreen
 import com.mustfaibra.shoesstore.screens.login.LoginScreen
 import com.mustfaibra.shoesstore.screens.notifications.NotificationScreen
@@ -33,15 +27,13 @@ import com.mustfaibra.shoesstore.screens.search.SearchScreen
 import com.mustfaibra.shoesstore.screens.signup.SignupScreen
 import com.mustfaibra.shoesstore.screens.splash.SplashScreen
 import com.mustfaibra.shoesstore.sealed.Screen
-import com.mustfaibra.shoesstore.ui.theme.Dimension
-import timber.log.Timber
 
 @Composable
 fun HolderScreen(
     onStatusBarColorChange: (color: Color) -> Unit,
     holderViewModel: HolderViewModel = hiltViewModel(),
 ) {
-    LaunchedEffect(key1 = Unit){
+    LaunchedEffect(key1 = Unit) {
         holderViewModel.getCartItems()
     }
 
@@ -60,7 +52,7 @@ fun HolderScreen(
             NavHost(
                 modifier = Modifier.weight(1f),
                 navController = controller,
-                startDestination = Screen.Splash.route
+                startDestination = Screen.Cart.route
             ) {
                 composable(Screen.Splash.route) {
                     onStatusBarColorChange(MaterialTheme.colors.primary)
@@ -101,7 +93,7 @@ fun HolderScreen(
                         onProductClicked = { productId ->
                             controller.navigate(
                                 Screen.ProductDetails.route
-                                    .replace("{productId}","$productId")
+                                    .replace("{productId}", "$productId")
                             )
                         },
                         onCartStateChanged = { productId ->
@@ -117,9 +109,7 @@ fun HolderScreen(
                     val productId = it.arguments?.getInt("productId")
                         ?: throw IllegalArgumentException("Product id is required")
 
-                    Timber.d("Going to product's details which it's id is $productId")
                 }
-
                 composable(Screen.Notifications.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
                     NotificationScreen()
@@ -131,6 +121,14 @@ fun HolderScreen(
                 composable(Screen.Cart.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
 
+                    CartScreen(
+                        onProductClicked = {productId->
+                            controller.navigate(
+                                Screen.ProductDetails.route
+                                    .replace("{productId}", "$productId")
+                            )
+                        }
+                    )
                 }
                 composable(Screen.Profile.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
@@ -142,7 +140,7 @@ fun HolderScreen(
             if (currentDestinationAsState in destinations.map { it.route }) {
                 AppBottomNav(
                     activeRoute = currentDestinationAsState,
-                    backgroundColor = MaterialTheme.colors.background,
+                    backgroundColor = MaterialTheme.colors.surface,
                     bottomNavDestinations = destinations,
                     onActiveRouteChange = {
                         if (it != currentDestinationAsState) {

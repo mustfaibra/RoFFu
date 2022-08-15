@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.sealed.MenuOption
@@ -241,6 +242,7 @@ fun AppBottomNavItem(
 @Composable
 fun PopupOptionsMenu(
     icon: Painter,
+    iconSize: Dp = Dimension.smIcon,
     iconBackgroundColor: Color = MaterialTheme.colors.background,
     menuBackgroundColor: Color = MaterialTheme.colors.surface,
     menuContentColor: Color = MaterialTheme.colors.onSurface,
@@ -255,6 +257,7 @@ fun PopupOptionsMenu(
             onButtonClicked = onOptionsMenuExpandChanges,
             iconTint = menuContentColor,
             backgroundColor = iconBackgroundColor,
+            iconSize = iconSize,
         )
         DropdownMenu(
             modifier = Modifier
@@ -276,20 +279,19 @@ fun PopupOptionsMenu(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(Dimension.pagePadding.div(2)),
                 ) {
-                    val itemColor = menuContentColor
 
                     option.icon?.let { icon ->
                         Icon(
                             painter = painterResource(id = icon),
                             contentDescription = stringResource(id = option.title),
                             modifier = Modifier.size(Dimension.smIcon),
-                            tint = itemColor,
+                            tint = menuContentColor,
                         )
                     }
                     Text(
                         text = stringResource(id = option.title),
-                        color = itemColor,
-                        style = MaterialTheme.typography.caption.copy(fontWeight = FontWeight.Medium),
+                        color = menuContentColor,
+                        style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Medium),
                     )
                 }
             }
