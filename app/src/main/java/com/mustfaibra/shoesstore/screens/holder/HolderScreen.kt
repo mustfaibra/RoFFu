@@ -38,7 +38,7 @@ fun HolderScreen(
     }
 
     val destinations = remember {
-        listOf(Screen.Home, Screen.Notifications, Screen.Search, Screen.Cart, Screen.Profile)
+        listOf(Screen.Home, Screen.Notifications, Screen.Cart, Screen.Profile)
     }
     val controller = LocalNavHost.current
     val currentDestinationAsState = getActiveRoute(navController = controller)
@@ -52,7 +52,7 @@ fun HolderScreen(
             NavHost(
                 modifier = Modifier.weight(1f),
                 navController = controller,
-                startDestination = Screen.Cart.route
+                startDestination = Screen.Home.route
             ) {
                 composable(Screen.Splash.route) {
                     onStatusBarColorChange(MaterialTheme.colors.primary)

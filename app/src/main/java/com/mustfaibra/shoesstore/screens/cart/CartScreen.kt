@@ -1,11 +1,13 @@
 package com.mustfaibra.shoesstore.screens.cart
 
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.InfiniteRepeatableSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,6 +57,7 @@ import com.mustfaibra.shoesstore.ui.theme.Dimension
 import com.mustfaibra.shoesstore.utils.LocalScreenSize
 import com.mustfaibra.shoesstore.utils.getDiscountedValue
 import com.mustfaibra.shoesstore.utils.getDp
+import timber.log.Timber
 import kotlin.math.roundToInt
 
 @Composable
@@ -110,7 +113,13 @@ fun CartScreen(
                             MenuOption.ClearCart,
                         ),
                         onOptionsMenuExpandChanges = { cartViewModel.toggleOptionsMenuExpandState() },
-                        onMenuOptionSelected = { cartViewModel.toggleOptionsMenuExpandState() },
+                        onMenuOptionSelected = {
+                            cartViewModel.toggleOptionsMenuExpandState()
+                            when(it){
+                                is MenuOption.ClearCart -> cartViewModel.clearCart()
+                                else -> {}
+                            }
+                        },
                         optionsMenuExpanded = cartOptionsMenuExpanded
                     )
                 }
@@ -122,6 +131,7 @@ fun CartScreen(
                         productImage = product.image,
                         productPrice = product.price,
                         currentQty = cartItem.quantity,
+                        discount = cartItem.product?.discount,
                         onProductClicked = { onProductClicked(product.id) },
                         onQuantityChanged = { newQuantity ->
                             cartViewModel.updateQuantity(
@@ -218,7 +228,7 @@ fun CartItemLayout(
     productImage: Int,
     productPrice: Double,
     currentQty: Int,
-    discount: Int = 0,
+    discount: Int?,
     onProductClicked: () -> Unit,
     onQuantityChanged: (qty: Int) -> Unit,
     onProductRemoved: () -> Unit,
@@ -227,8 +237,12 @@ fun CartItemLayout(
     val swipeState = rememberSwipeableState(0)
     val swipeAnchors = mapOf(
         0f to 0,
-        -(screenSize.width.value.div(1.3f)) to 1
+        -(screenSize.width.value.times(0.8f)) to 1
     )
+    if (swipeState.offset.value == swipeAnchors.keys.last()) {
+        onProductRemoved()
+    }
+
     val infiniteTransition = rememberInfiniteTransition()
     val animatedOffset by infiniteTransition.animateFloat(
         initialValue = 0f, targetValue = 20f,
@@ -239,6 +253,25 @@ fun CartItemLayout(
             ),
             repeatMode = RepeatMode.Reverse,
         ),
+    )
+    val swipeTransition = updateTransition(
+        targetState = swipeState.offset.value,
+        label = "swipe-transition"
+    )
+    val productBackground by swipeTransition.animateColor(
+        label = "product-background",
+        targetValueByState = {
+            when  {
+                it > swipeAnchors.keys.last().div(2) -> MaterialTheme.colors.primary.copy(alpha = 0.5f)
+                else -> Color.Red.copy(alpha = 0.5f)
+            }
+        },
+        transitionSpec = {
+            TweenSpec(
+                durationMillis = 1000,
+                easing = LinearEasing,
+            )
+        }
     )
     Box(
         modifier = Modifier
@@ -283,7 +316,7 @@ fun CartItemLayout(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    text = "$${(productPrice * currentQty).getDiscountedValue(discount = discount)}",
+                    text = "$${(productPrice * currentQty).getDiscountedValue(discount = discount ?: 0)}",
                     style = MaterialTheme.typography.body1,
                     color = MaterialTheme.colors.onBackground.copy(alpha = 0.8f)
                 )
@@ -332,7 +365,7 @@ fun CartItemLayout(
             Box(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.large)
-                    .background(MaterialTheme.colors.primary.copy(alpha = 0.5f))
+                    .background(productBackground)
                     .padding(Dimension.xs)
             ) {
                 Image(

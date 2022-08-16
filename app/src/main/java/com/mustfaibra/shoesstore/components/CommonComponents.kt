@@ -4,16 +4,9 @@ import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActionScope
@@ -180,29 +173,60 @@ fun AppBottomNav(
     backgroundColor: Color,
     onActiveRouteChange: (route: String) -> Unit,
 ) {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(backgroundColor)
-            .padding(
-                horizontal = Dimension.pagePadding,
-                vertical = Dimension.pagePadding.div(2),
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround,
     ) {
-        bottomNavDestinations.forEach {
-            val isActive = activeRoute.equals(other = it.route, ignoreCase = true)
-            AppBottomNavItem(
-                active = isActive,
-                title = stringResource(id = it.title ?: R.string.home),
-                icon = it.icon ?: R.drawable.ic_home_empty,
-                onRouteClicked = {
-                    if (!isActive) {
-                        onActiveRouteChange(it.route)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = Dimension.pagePadding,
+                    vertical = Dimension.pagePadding.div(2),
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround,
+        ) {
+            bottomNavDestinations.forEach {
+                val isActive = activeRoute.equals(other = it.route, ignoreCase = true)
+                AppBottomNavItem(
+                    active = isActive,
+                    title = stringResource(id = it.title ?: R.string.home),
+                    icon = it.icon ?: R.drawable.ic_home_empty,
+                    onRouteClicked = {
+                        if (!isActive) {
+                            onActiveRouteChange(it.route)
+                        }
                     }
+                )
+                if(bottomNavDestinations.indexOf(it).plus(1) == bottomNavDestinations.size.div(2)){
+                    Spacer(modifier = Modifier.width(Dimension.smIcon))
                 }
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .offset(y = -(Dimension.md.plus(Dimension.mdIcon)).div(2))
+                .border(
+                    width = Dimension.sm,
+                    color = MaterialTheme.colors.background,
+                    shape = CircleShape,
+                )
+                .padding(Dimension.sm)
+        ) {
+            DrawableButton(
+                painter = painterResource(id = R.drawable.ic_search),
+                backgroundColor = MaterialTheme.colors.primary,
+                iconSize = Dimension.mdIcon,
+                iconTint = MaterialTheme.colors.onPrimary,
+                onButtonClicked = {},
+                shape = CircleShape,
+                paddingValue = PaddingValues(Dimension.sm),
             )
+
         }
     }
 }
@@ -215,24 +239,30 @@ fun AppBottomNavItem(
     icon: Int,
     onRouteClicked: () -> Unit,
 ) {
-    Box(
+    Column(
         modifier = modifier
-            .clip(MaterialTheme.shapes.medium)
-            .background(
-                if (active) MaterialTheme.colors.primary
-                else Color.Transparent,
-            )
+            .width(IntrinsicSize.Min)
             .clickable {
                 onRouteClicked()
-            }
-            .padding(Dimension.sm),
-        contentAlignment = Alignment.Center,
+            },
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Spacer(
+            modifier = Modifier
+                .padding(bottom = Dimension.sm)
+                .fillMaxWidth()
+                .height(Dimension.xs)
+                .clip(MaterialTheme.shapes.medium)
+                .background(
+                    if (active) MaterialTheme.colors.primary
+                    else Color.Transparent,
+                )
+        )
         Icon(
             painter = painterResource(id = icon),
             contentDescription = title,
-            tint = if (active) MaterialTheme.colors.onPrimary
-                else MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
+            tint = if (active) MaterialTheme.colors.primary
+            else MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
             modifier = Modifier
                 .size(Dimension.smIcon)
         )
