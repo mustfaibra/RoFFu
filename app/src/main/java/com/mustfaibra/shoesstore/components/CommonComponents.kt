@@ -3,9 +3,11 @@ package com.mustfaibra.shoesstore.components
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
@@ -41,11 +43,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import coil.compose.rememberImagePainter
 import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.sealed.MenuOption
 import com.mustfaibra.shoesstore.sealed.Screen
 import com.mustfaibra.shoesstore.ui.theme.Dimension
+import com.mustfaibra.shoesstore.utils.getDiscountedValue
+import com.mustfaibra.shoesstore.utils.getDp
 import com.mustfaibra.shoesstore.utils.mirror
 
 @Composable
@@ -200,13 +204,14 @@ fun AppBottomNav(
                         }
                     }
                 )
-                if(bottomNavDestinations.indexOf(it).plus(1) == bottomNavDestinations.size.div(2)){
+                if (bottomNavDestinations.indexOf(it)
+                        .plus(1) == bottomNavDestinations.size.div(2)
+                ) {
                     Spacer(modifier = Modifier.width(Dimension.smIcon))
                 }
             }
         }
-
-        Box(
+        DrawableButton(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .offset(y = -(Dimension.md.plus(Dimension.mdIcon)).div(2))
@@ -215,19 +220,17 @@ fun AppBottomNav(
                     color = MaterialTheme.colors.background,
                     shape = CircleShape,
                 )
-                .padding(Dimension.sm)
-        ) {
-            DrawableButton(
-                painter = painterResource(id = R.drawable.ic_search),
-                backgroundColor = MaterialTheme.colors.primary,
-                iconSize = Dimension.mdIcon,
-                iconTint = MaterialTheme.colors.onPrimary,
-                onButtonClicked = {},
-                shape = CircleShape,
-                paddingValue = PaddingValues(Dimension.sm),
-            )
-
-        }
+                .padding(Dimension.sm),
+            painter = painterResource(id = R.drawable.ic_shopping_bag),
+            backgroundColor = if (activeRoute == Screen.Cart.route) MaterialTheme.colors.primary
+            else MaterialTheme.colors.background,
+            iconSize = Dimension.mdIcon.times(0.8f),
+            iconTint = if (activeRoute == Screen.Cart.route) MaterialTheme.colors.onPrimary
+            else MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
+            onButtonClicked = { onActiveRouteChange(Screen.Cart.route) },
+            shape = CircleShape,
+            paddingValue = PaddingValues(Dimension.md),
+        )
     }
 }
 
@@ -353,7 +356,129 @@ fun ReactiveCartIcon(
             .clip(CircleShape)
             .clickable { onCartChange() }
             .padding(Dimension.elevation)
-            .size(20.dp),
+            .size(Dimension.smIcon),
         tint = tint
     )
+}
+
+@Composable
+fun ReactiveBookmarkIcon(
+    modifier: Modifier = Modifier,
+    isOnBookmarks: Boolean,
+    onBookmarkChange: () -> Unit,
+) {
+    val transition =
+        updateTransition(targetState = isOnBookmarks, label = "bookmark")
+
+    val tint by transition.animateColor(label = "tint") {
+        when (it) {
+            true -> MaterialTheme.colors.secondary
+            false -> MaterialTheme.colors.onBackground.copy(alpha = 0.5f)
+        }
+    }
+    val rotation by transition.animateFloat(label = "rotation") { if (it) 360f else -360f }
+    Icon(
+        painter = painterResource(id = if (isOnBookmarks) R.drawable.ic_bookmark_filled else R.drawable.ic_bookmark),
+        contentDescription = null,
+        modifier = modifier
+            .rotate(rotation)
+            .clip(CircleShape)
+            .clickable { onBookmarkChange() }
+            .padding(Dimension.elevation)
+            .size(Dimension.smIcon),
+        tint = tint
+    )
+}
+
+@Composable
+fun ProductItemLayout(
+    modifier: Modifier = Modifier,
+    image: Int,
+    price: Double,
+    title: String,
+    discount: Int,
+    onCart: Boolean = false,
+    onBookmark: Boolean = false,
+    onProductClicked: () -> Unit,
+    onChangeCartState: () -> Unit,
+    onChangeBookmarkState: () -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape = MaterialTheme.shapes.small)
+            .clickable(
+                indication = null,
+                interactionSource = MutableInteractionSource(),
+                onClick = onProductClicked
+            ),
+        verticalArrangement = Arrangement.spacedBy(Dimension.pagePadding)
+    ) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(MaterialTheme.shapes.medium)
+        ) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(this.constraints.maxHeight
+                        .div(2)
+                        .getDp())
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colors.surface),
+            )
+            Image(
+                painter = rememberImagePainter(data = image),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(MaterialTheme.shapes.medium)
+                    .rotate(-45f),
+            )
+            ReactiveBookmarkIcon(
+                modifier = Modifier.padding(Dimension.xs),
+                isOnBookmarks = onBookmark,
+                onBookmarkChange = onChangeBookmarkState
+            )
+        }
+        Column(
+            verticalArrangement = Arrangement.spacedBy(Dimension.xs)
+        ) {
+            /** Product's interactions */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                /** Price */
+                val cost = stringResource(
+                    id = R.string.x_dollar,
+                    price.getDiscountedValue(discount = discount)
+                )
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = cost,
+                    style = MaterialTheme.typography.body1.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.7f),
+                    ),
+                )
+                ReactiveCartIcon(
+                    isOnCart = onCart,
+                    onCartChange = onChangeCartState,
+                )
+            }
+            /** Product's name */
+            Text(
+                modifier = Modifier,
+                text = title,
+                style = MaterialTheme.typography.caption,
+                maxLines = 2,
+            )
+        }
+
+    }
 }

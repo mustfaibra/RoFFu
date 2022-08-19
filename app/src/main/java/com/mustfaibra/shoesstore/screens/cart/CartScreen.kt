@@ -57,7 +57,6 @@ import com.mustfaibra.shoesstore.ui.theme.Dimension
 import com.mustfaibra.shoesstore.utils.LocalScreenSize
 import com.mustfaibra.shoesstore.utils.getDiscountedValue
 import com.mustfaibra.shoesstore.utils.getDp
-import timber.log.Timber
 import kotlin.math.roundToInt
 
 @Composable
@@ -101,7 +100,7 @@ fun CartScreen(
                     Text(
                         modifier = Modifier.weight(1f),
                         text = stringResource(id = R.string.cart),
-                        style = MaterialTheme.typography.h2,
+                        style = MaterialTheme.typography.h3,
                     )
 
                     PopupOptionsMenu(
@@ -115,7 +114,7 @@ fun CartScreen(
                         onOptionsMenuExpandChanges = { cartViewModel.toggleOptionsMenuExpandState() },
                         onMenuOptionSelected = {
                             cartViewModel.toggleOptionsMenuExpandState()
-                            when(it){
+                            when (it) {
                                 is MenuOption.ClearCart -> cartViewModel.clearCart()
                                 else -> {}
                             }
@@ -261,8 +260,9 @@ fun CartItemLayout(
     val productBackground by swipeTransition.animateColor(
         label = "product-background",
         targetValueByState = {
-            when  {
-                it > swipeAnchors.keys.last().div(2) -> MaterialTheme.colors.primary.copy(alpha = 0.5f)
+            when {
+                it > swipeAnchors.keys.last()
+                    .div(2) -> MaterialTheme.colors.primary.copy(alpha = 0.5f)
                 else -> Color.Red.copy(alpha = 0.5f)
             }
         },

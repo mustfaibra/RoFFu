@@ -26,7 +26,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,14 +40,10 @@ import com.google.accompanist.pager.rememberPagerState
 import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.components.CustomInputField
 import com.mustfaibra.shoesstore.components.DrawableButton
-import com.mustfaibra.shoesstore.components.IconButton
-import com.mustfaibra.shoesstore.components.ReactiveCartIcon
+import com.mustfaibra.shoesstore.components.ProductItemLayout
 import com.mustfaibra.shoesstore.models.Advertisement
 import com.mustfaibra.shoesstore.sealed.UiState
 import com.mustfaibra.shoesstore.ui.theme.Dimension
-import com.mustfaibra.shoesstore.ui.theme.StoreTheme
-import com.mustfaibra.shoesstore.utils.getDiscountedValue
-import com.mustfaibra.shoesstore.utils.getDp
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -57,8 +52,10 @@ import timber.log.Timber
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     cartProductsIds: List<Int>,
+    bookmarkProductsIds: List<Int>,
     onProductClicked: (productId: Int) -> Unit,
     onCartStateChanged: (productId: Int) -> Unit,
+    onBookmarkStateChanged: (productId: Int) -> Unit,
 ) {
     LaunchedEffect(key1 = Unit) {
         homeViewModel.getHomeAdvertisements()
@@ -129,7 +126,7 @@ fun HomeScreen(
                     .background(MaterialTheme.colors.background),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-            ){
+            ) {
                 Text(
                     modifier = Modifier.weight(1f),
                     text = stringResource(id = R.string.discover),
@@ -222,12 +219,14 @@ fun HomeScreen(
                         title = product.name,
                         discount = product.discount,
                         onCart = product.id in cartProductsIds,
+                        onBookmark = product.id in bookmarkProductsIds,
                         onProductClicked = {
                             onProductClicked(product.id)
                         },
                         onChangeCartState = {
                             onCartStateChanged(product.id)
-                        }
+                        },
+                        onChangeBookmarkState = { onBookmarkStateChanged(product.id) }
                     )
                 }
             }
@@ -379,108 +378,6 @@ fun ManufacturersSection(
                     color = contentColor,
                 )
             }
-        }
-    }
-}
-
-
-@Composable
-fun ProductItemLayout(
-    modifier: Modifier = Modifier,
-    image: Int,
-    price: Double,
-    title: String,
-    discount: Int,
-    onCart: Boolean = false,
-    onProductClicked: () -> Unit,
-    onChangeCartState: () -> Unit,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(shape = MaterialTheme.shapes.small)
-            .clickable(
-                indication = null,
-                interactionSource = MutableInteractionSource(),
-                onClick = onProductClicked
-            ),
-        verticalArrangement = Arrangement.spacedBy(Dimension.pagePadding)
-    ) {
-        BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f)
-                .clip(MaterialTheme.shapes.medium)
-        ) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(this.constraints.maxHeight
-                        .div(2)
-                        .getDp())
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colors.surface),
-            )
-            Image(
-                painter = rememberImagePainter(data = image),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(MaterialTheme.shapes.medium)
-                    .rotate(-45f),
-            )
-        }
-        Column(
-            verticalArrangement = Arrangement.spacedBy(Dimension.xs)
-        ) {
-            /** Product's interactions */
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                /** Price */
-                val cost = stringResource(
-                    id = R.string.x_dollar,
-                    price.getDiscountedValue(discount = discount)
-                )
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = cost,
-                    style = MaterialTheme.typography.body1.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.7f),
-                    ),
-                )
-                ReactiveCartIcon(
-                    isOnCart = onCart,
-                    onCartChange = onChangeCartState,
-                )
-            }
-            /** Product's name */
-            Text(
-                modifier = Modifier,
-                text = title,
-                style = MaterialTheme.typography.caption,
-                maxLines = 2,
-            )
-        }
-
-    }
-}
-
-
-@Composable
-fun Previewer() {
-    StoreTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colors.background),
-            verticalArrangement = Arrangement.spacedBy(Dimension.pagePadding),
-        ) {
-
         }
     }
 }

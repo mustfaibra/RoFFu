@@ -25,6 +25,7 @@ import androidx.core.text.layoutDirection
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
+import com.mustfaibra.shoesstore.models.BookmarkItemWithProduct
 import com.mustfaibra.shoesstore.models.CartItem
 import com.mustfaibra.shoesstore.models.CartItemWithProduct
 import com.mustfaibra.shoesstore.models.LocalManufacturer
@@ -221,10 +222,17 @@ fun LocalProduct.getStructuredProduct() = this.product.also { product ->
     product.sizes = this.sizes
 }
 
-fun MutableList<CartItemWithProduct>.getStructuredCartItems(): MutableList<CartItem> {
+fun MutableList<CartItemWithProduct>.getStructuredCartItems(): List<CartItem> {
     return this.map {
         it.details.apply {
             this.product = it.product.getStructuredProduct()
         }
-    }.toMutableList()
+    }
 }
+
+fun MutableList<BookmarkItemWithProduct>.getStructuredBookmarkItems(): List<Product> {
+    return this.map {
+        it.product.getStructuredProduct()
+    }
+}
+

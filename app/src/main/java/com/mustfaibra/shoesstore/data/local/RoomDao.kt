@@ -1,7 +1,6 @@
 package com.mustfaibra.shoesstore.data.local
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -23,7 +22,6 @@ interface RoomDao {
     suspend fun getManufacturersWithProducts(): List<LocalManufacturer>
 
 
-
     /** Products operations */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProduct(product: Product)
@@ -35,14 +33,12 @@ interface RoomDao {
     suspend fun insertSize(productSize: ProductSize)
 
 
-
     /** Advertisements operations */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAdvertisement(advertisement: Advertisement)
 
     @Query("SELECT * FROM advertisement")
-    suspend fun getAdvertisements() : List<Advertisement>
-
+    suspend fun getAdvertisements(): List<Advertisement>
 
 
     /** All Cart operations */
@@ -69,11 +65,26 @@ interface RoomDao {
     suspend fun clearCart()
 
 
+    /** Bookmarks operations */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertBookmarkItem(bookmarkItem: BookmarkItem)
+
+    @Transaction
+    @Query("SELECT * from bookmarks")
+    fun getBookmarkItems(): Flow<MutableList<BookmarkItemWithProduct>>
+
+    @Query("SELECT productId FROM bookmarks")
+    fun getBookmarkProductsIds(): Flow<List<Int>>
+
+    @Query("DELETE FROM bookmarks WHERE productId = :productId ")
+    suspend fun deleteBookmarkItem(productId: Int)
+
+    @Query("Delete FROM bookmarks")
+    suspend fun clearBookmark()
 
     /** Product reviews */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertReviews(reviews: List<Review>)
-
 
 
     /** User operations */

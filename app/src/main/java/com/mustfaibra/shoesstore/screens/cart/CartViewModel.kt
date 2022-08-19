@@ -39,26 +39,23 @@ class CartViewModel @Inject constructor(
     }
 
     private suspend fun getCartItems() {
+        if (cartItems.isNotEmpty()) return
+
         cartState.value = UiState.Loading
         productRepository.getLocalCart().distinctUntilChanged().collect {
-            if (cartState.value !is UiState.Loading) {
-                /** This mean a data updates happened, clear the previous ! */
-                cartItems.clear()
-                totalPrice.value = 0.0
-            }
-
-            if (it.isNotEmpty()) {
+            it.getStructuredCartItems().let { updates ->
+                if (updates.isNotEmpty()) {
+                    cartItems.clear()
+                    totalPrice.value = 0.0
+                }
                 cartState.value = UiState.Success
                 /** There are a cart items */
-                cartItems.addAll(it.getStructuredCartItems())
+                cartItems.addAll(updates)
                 cartItems.forEach { cartItem ->
                     /** Now should update the totalPrice */
                     totalPrice.value += cartItem.product?.price?.times(cartItem.quantity)
                         ?.getDiscountedValue(cartItem.product?.discount ?: 0) ?: 0.0
                 }
-            } else {
-                /** No cart items found */
-                cartState.value = UiState.Success
             }
         }
     }

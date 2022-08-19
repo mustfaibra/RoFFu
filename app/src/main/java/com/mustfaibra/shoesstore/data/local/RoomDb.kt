@@ -16,6 +16,7 @@ import javax.inject.Provider
         Review::class,
         User::class,
         Product::class,
+        BookmarkItem::class,
         CartItem::class,
         Order::class,
         OrderItem::class,
