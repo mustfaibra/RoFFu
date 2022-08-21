@@ -16,5 +16,4 @@ class ProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
 ) : ViewModel() {
     val uiState = mutableStateOf<UiState>(UiState.Idle)
-
 }

@@ -236,3 +236,7 @@ fun MutableList<BookmarkItemWithProduct>.getStructuredBookmarkItems(): List<Prod
     }
 }
 
+fun List<Any?>.neitherNull() : Boolean {
+    return this.all { it != null }
+}
+

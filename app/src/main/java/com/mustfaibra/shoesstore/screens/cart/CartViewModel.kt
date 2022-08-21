@@ -44,7 +44,7 @@ class CartViewModel @Inject constructor(
         cartState.value = UiState.Loading
         productRepository.getLocalCart().distinctUntilChanged().collect {
             it.getStructuredCartItems().let { updates ->
-                if (updates.isNotEmpty()) {
+                if (updates.isEmpty() || updates.any { item -> item in cartItems }) {
                     cartItems.clear()
                     totalPrice.value = 0.0
                 }

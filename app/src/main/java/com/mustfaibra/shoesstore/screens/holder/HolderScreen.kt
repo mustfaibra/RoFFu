@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -15,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.mustfaibra.shoesstore.components.AppBottomNav
+import com.mustfaibra.shoesstore.models.User
 import com.mustfaibra.shoesstore.providers.LocalNavHost
 import com.mustfaibra.shoesstore.screens.bookmarks.BookmarksScreen
 import com.mustfaibra.shoesstore.screens.cart.CartScreen
@@ -28,6 +30,8 @@ import com.mustfaibra.shoesstore.screens.search.SearchScreen
 import com.mustfaibra.shoesstore.screens.signup.SignupScreen
 import com.mustfaibra.shoesstore.screens.splash.SplashScreen
 import com.mustfaibra.shoesstore.sealed.Screen
+import com.mustfaibra.shoesstore.utils.UserPref
+import com.skydoves.whatif.whatIfNotNull
 
 @Composable
 fun HolderScreen(
@@ -41,10 +45,12 @@ fun HolderScreen(
     val currentDestinationAsState = getActiveRoute(navController = controller)
     val productsOnCartIds = holderViewModel.productsOnCartIds
     val productsOnBookmarksIds = holderViewModel.productsOnBookmarksIds
+    val user by remember { UserPref.user }
 
 
     ScaffoldSection(
         controller = controller,
+        user = user,
         productsOnCartIds = productsOnCartIds,
         productsOnBookmarksIds = productsOnBookmarksIds,
         onStatusBarColorChange = onStatusBarColorChange,
@@ -103,6 +109,9 @@ fun HolderScreen(
                 productId = productId,
                 currentlyOnBookmarks = productId in productsOnBookmarksIds,
             )
+        },
+        onUserNotAuthorized = {
+            controller.navigate(Screen.Login.route)
         }
     )
 }
@@ -110,6 +119,7 @@ fun HolderScreen(
 @Composable
 fun ScaffoldSection(
     controller: NavHostController,
+    user: User?,
     productsOnCartIds: List<Int>,
     productsOnBookmarksIds: List<Int>,
     onStatusBarColorChange: (color: Color) -> Unit,
@@ -118,6 +128,7 @@ fun ScaffoldSection(
     onUpdateCartRequest: (productId: Int) -> Unit,
     onUpdateBookmarkRequest: (productId: Int) -> Unit,
     onShowProductRequest: (productId: Int) -> Unit,
+    onUserNotAuthorized: () -> Unit,
     bottomNavigationContent: @Composable () -> Unit,
 ) {
     Scaffold { paddingValues ->
@@ -190,8 +201,17 @@ fun ScaffoldSection(
                     CartScreen(onProductClicked = onShowProductRequest)
                 }
                 composable(Screen.Profile.route) {
-                    onStatusBarColorChange(MaterialTheme.colors.background)
-                    ProfileScreen()
+                    user.whatIfNotNull(
+                        whatIf = {
+                            onStatusBarColorChange(MaterialTheme.colors.background)
+                            ProfileScreen(user = it)
+                        },
+                        whatIfNot = {
+                            LaunchedEffect(key1 = Unit) {
+                                onUserNotAuthorized()
+                            }
+                        },
+                    )
                 }
 
             }

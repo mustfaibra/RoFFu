@@ -35,7 +35,7 @@ class BookmarkViewModel @Inject constructor(
         _bookmarkState.value = UiState.Loading
         productRepository.getLocalBookmarks().distinctUntilChanged().collect {
             it.getStructuredBookmarkItems().let { updates ->
-                if (updates.isNotEmpty()) {
+                if (updates.isEmpty() || updates.any { product -> product in bookmarkItems }) {
                     /** There are a bookmark products, clear it */
                     bookmarkItems.clear()
                 }

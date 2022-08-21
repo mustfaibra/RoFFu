@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Shoes Store</string>
+    <string name="app_name">Roffo</string>
     <string name="no_available_data">No available data</string>
     <string name="net_conn_err_title">Network connection error!</string>
     <string name="no_avail_data_err_title">No available data!</string>
@@ -25,4 +25,5 @@
     <string name="total">Total</string>
     <string name="favorite">Favorite</string>
     <string name="bookmarks">Bookmarks</string>
+    <string name="login">Login</string>
 </resources>
