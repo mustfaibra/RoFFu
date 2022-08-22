@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -26,6 +25,8 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material.swipeable
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +39,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -52,22 +52,31 @@ import com.mustfaibra.shoesstore.components.DrawableButton
 import com.mustfaibra.shoesstore.components.IconButton
 import com.mustfaibra.shoesstore.components.PopupOptionsMenu
 import com.mustfaibra.shoesstore.components.SimpleLoadingDialog
+import com.mustfaibra.shoesstore.components.SummaryRow
+import com.mustfaibra.shoesstore.models.CartItem
+import com.mustfaibra.shoesstore.models.User
 import com.mustfaibra.shoesstore.sealed.MenuOption
 import com.mustfaibra.shoesstore.ui.theme.Dimension
 import com.mustfaibra.shoesstore.utils.LocalScreenSize
 import com.mustfaibra.shoesstore.utils.getDiscountedValue
 import com.mustfaibra.shoesstore.utils.getDp
+import com.skydoves.whatif.whatIfNotNull
 import kotlin.math.roundToInt
 
 @Composable
 fun CartScreen(
+    user: User?,
+    cartItems: List<CartItem>,
     cartViewModel: CartViewModel = hiltViewModel(),
     onProductClicked: (productId: Int) -> Unit,
+    onCheckoutRequest: () -> Unit,
+    onUserNotAuthorized: () -> Unit,
 ) {
-    val context = LocalContext.current
-    val uiState by remember { cartViewModel.cartState }
+    val quantities by remember { derivedStateOf { cartItems.sumOf { it.quantity } } }
+    LaunchedEffect(key1 = quantities) {
+        cartViewModel.updateCart(items = cartItems)
+    }
     val totalPrice by remember { cartViewModel.totalPrice }
-    val cartItems = cartViewModel.cartItems
     val cartOptionsMenuExpanded by remember { cartViewModel.cartOptionsMenuExpanded }
     val isSyncingCart by remember { cartViewModel.isSyncingCart }
     if (isSyncingCart) {
@@ -146,64 +155,40 @@ fun CartScreen(
             }
         }
         /** Floating overall price with checkout section */
-        Card(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .onGloballyPositioned {
-                    cardHeight = it.size.height
-                },
-            shape = RoundedCornerShape(
-                topStartPercent = 25,
-                topEndPercent = 25,
-            ),
-            backgroundColor = MaterialTheme.colors.background,
-            elevation = Dimension.xl,
-        ) {
+        if (cartItems.isNotEmpty()) {
             Column(
                 modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .onGloballyPositioned {
+                        cardHeight = it.size.height
+                    }
                     .shadow(
                         elevation = Dimension.elevation.div(2),
                         shape = RoundedCornerShape(
-                            topStartPercent = 25,
-                            topEndPercent = 25,
+                            topStartPercent = 15,
+                            topEndPercent = 15,
                         ),
-                        clip = false,
                         spotColor = MaterialTheme.colors.primary,
                     )
-                    .padding(
-                        start = Dimension.pagePadding,
-                        end = Dimension.pagePadding,
-                        top = Dimension.pagePadding,
-                        bottom = Dimension.sm
-                    ),
-                verticalArrangement = Arrangement.spacedBy(Dimension.sm),
+                    .clip(
+                        shape = RoundedCornerShape(
+                            topStartPercent = 15,
+                            topEndPercent = 15,
+                        )
+                    )
+                    .background(MaterialTheme.colors.background)
+                    .padding(all = Dimension.pagePadding),
+                verticalArrangement = Arrangement.spacedBy(Dimension.sm)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                ) {
-                    Text(
-                        text = stringResource(R.string.total),
-                        style = MaterialTheme.typography.body1,
-                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                    )
-                    Spacer(
-                        modifier = Modifier
-                            .width(Dimension.lg)
-                            .height(Dimension.elevation)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colors.primary.copy(alpha = 0.7f))
-                    )
-                    Text(
-                        text = "$$totalPrice",
-                        style = MaterialTheme.typography.body1,
-                        color = MaterialTheme.colors.onSurface,
-                    )
-                }
+                /** total cost row */
+                SummaryRow(
+                    title = stringResource(id = R.string.total),
+                    value = "$$totalPrice"
+                )
+
                 CustomButton(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.checkout),
+                    text = stringResource(R.string.checkout_now),
                     textStyle = MaterialTheme.typography.body1,
                     buttonColor = MaterialTheme.colors.primary,
                     shape = RoundedCornerShape(percent = 35),
@@ -211,7 +196,15 @@ fun CartScreen(
                         all = Dimension.md.times(0.8f),
                     ),
                     onButtonClicked = {
-
+                        user.whatIfNotNull(
+                            whatIf = {
+                                cartViewModel.syncCartItems(
+                                    onSyncFailed = {},
+                                    onSyncSuccess = onCheckoutRequest
+                                )
+                            },
+                            whatIfNot = onUserNotAuthorized,
+                        )
                     },
                     contentColor = MaterialTheme.colors.onPrimary,
                 )

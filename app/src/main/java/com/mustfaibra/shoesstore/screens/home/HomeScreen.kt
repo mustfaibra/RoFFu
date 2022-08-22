@@ -372,11 +372,13 @@ fun ManufacturersSection(
                     contentDescription = null,
                     tint = contentColor,
                 )
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.caption,
-                    color = contentColor,
-                )
+                if(activeBrandIndex == index){
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.body1,
+                        color = contentColor,
+                    )
+                }
             }
         }
     }

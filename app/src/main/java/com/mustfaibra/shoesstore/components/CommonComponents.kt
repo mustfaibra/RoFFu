@@ -17,6 +17,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Snackbar
+import androidx.compose.material.SnackbarData
+import androidx.compose.material.SnackbarHost
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
@@ -50,7 +54,6 @@ import com.mustfaibra.shoesstore.sealed.Screen
 import com.mustfaibra.shoesstore.ui.theme.Dimension
 import com.mustfaibra.shoesstore.utils.getDiscountedValue
 import com.mustfaibra.shoesstore.utils.getDp
-import com.mustfaibra.shoesstore.utils.mirror
 
 @Composable
 fun CustomInputField(
@@ -136,8 +139,8 @@ fun CustomInputField(
 @Composable
 fun SecondaryTopBar(
     title: String,
-    backgroundColor: Color = MaterialTheme.colors.primary,
-    contentColor: Color = MaterialTheme.colors.onPrimary,
+    backgroundColor: Color = MaterialTheme.colors.background,
+    contentColor: Color = MaterialTheme.colors.onBackground,
     onBackClicked: () -> Unit,
 ) {
     Row(
@@ -148,18 +151,12 @@ fun SecondaryTopBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Dimension.pagePadding.times(1.5f)),
     ) {
-        Icon(
-            modifier = Modifier
-                .clip(CircleShape)
-                .background(Color.Transparent)
-                .clickable {
-                    onBackClicked()
-                }
-                .padding(Dimension.elevation)
-                .mirror(),
-            imageVector = Icons.Rounded.KeyboardArrowLeft,
-            tint = contentColor,
-            contentDescription = "back",
+        IconButton(
+            icon = Icons.Rounded.KeyboardArrowLeft,
+            backgroundColor = Color.Transparent,
+            iconTint = contentColor,
+            onButtonClicked = onBackClicked,
+            shape = MaterialTheme.shapes.medium,
         )
         Text(
             text = title,
@@ -480,5 +477,57 @@ fun ProductItemLayout(
             )
         }
 
+    }
+}
+
+@Composable
+fun CustomSnackBar(
+    modifier: Modifier = Modifier,
+    snackHost: SnackbarHostState,
+    content: @Composable (data: SnackbarData) -> Unit = {
+        Text(
+            text = it.message,
+            style = MaterialTheme.typography.body1,
+        )
+    },
+    backgroundColorProvider: () -> Color = { Color.White },
+    contentColor: Color = MaterialTheme.colors.onPrimary,
+) {
+    SnackbarHost(hostState = snackHost, modifier = modifier) { data ->
+        Snackbar(
+            modifier = Modifier
+                .padding(Dimension.pagePadding)
+                .fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium,
+            backgroundColor = backgroundColorProvider(),
+            contentColor = contentColor,
+            content = {
+                content(data)
+            }
+        )
+    }
+}
+
+@Composable
+fun SummaryRow(
+    title: String,
+    value: String,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.body2.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+        )
+
+        Text(
+            text = value,
+            style = MaterialTheme.typography.body2.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colors.secondary,
+        )
     }
 }

@@ -12,6 +12,7 @@ import com.mustfaibra.shoesstore.sealed.UiState
 import com.mustfaibra.shoesstore.utils.getDiscountedValue
 import com.mustfaibra.shoesstore.utils.getStructuredCartItems
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,39 +25,17 @@ class CartViewModel @Inject constructor(
     private val productRepository: ProductsRepository,
 ) : ViewModel() {
 
-    val cartState = mutableStateOf<UiState>(UiState.Loading)
-    val cartItems: MutableList<CartItem> = mutableStateListOf()
     val totalPrice = mutableStateOf(0.0)
     val isSyncingCart = mutableStateOf(false)
     private val _cartOptionsMenuExpanded = mutableStateOf(false)
     val cartOptionsMenuExpanded: State<Boolean> = _cartOptionsMenuExpanded
 
-    init {
-        viewModelScope.launch {
-            /** Getting cart items when this view model is created  */
-            getCartItems()
-        }
-    }
-
-    private suspend fun getCartItems() {
-        if (cartItems.isNotEmpty()) return
-
-        cartState.value = UiState.Loading
-        productRepository.getLocalCart().distinctUntilChanged().collect {
-            it.getStructuredCartItems().let { updates ->
-                if (updates.isEmpty() || updates.any { item -> item in cartItems }) {
-                    cartItems.clear()
-                    totalPrice.value = 0.0
-                }
-                cartState.value = UiState.Success
-                /** There are a cart items */
-                cartItems.addAll(updates)
-                cartItems.forEach { cartItem ->
-                    /** Now should update the totalPrice */
-                    totalPrice.value += cartItem.product?.price?.times(cartItem.quantity)
-                        ?.getDiscountedValue(cartItem.product?.discount ?: 0) ?: 0.0
-                }
-            }
+    fun updateCart(items: List<CartItem>){
+        totalPrice.value = 0.0
+        items.forEach { cartItem ->
+            /** Now should update the totalPrice */
+            totalPrice.value += cartItem.product?.price?.times(cartItem.quantity)
+                ?.getDiscountedValue(cartItem.product?.discount ?: 0) ?: 0.0
         }
     }
 
@@ -85,7 +64,9 @@ class CartViewModel @Inject constructor(
     ) {
         isSyncingCart.value = true
         viewModelScope.launch {
-
+            delay(3000)
+            isSyncingCart.value = false
+            onSyncSuccess()
         }
     }
 

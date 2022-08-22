@@ -4,7 +4,9 @@ package com.mustfaibra.shoesstore.screens.holder
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mustfaibra.shoesstore.models.CartItem
 import com.mustfaibra.shoesstore.repositories.ProductsRepository
+import com.mustfaibra.shoesstore.utils.getStructuredCartItems
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -18,12 +20,29 @@ class HolderViewModel @Inject constructor(
     private val productsRepository: ProductsRepository,
 ) : ViewModel() {
 
+    val cartItems: MutableList<CartItem> = mutableStateListOf()
     val productsOnCartIds: MutableList<Int> = mutableStateListOf()
     val productsOnBookmarksIds: MutableList<Int> = mutableStateListOf()
 
     init {
+        getCartItems()
         getCartItemsIds()
         getBookmarksItemsIds()
+    }
+
+    private fun getCartItems() {
+        if (cartItems.isNotEmpty()) return
+        viewModelScope.launch {
+            productsRepository.getLocalCart().distinctUntilChanged().collect {
+                it.getStructuredCartItems().let { updates ->
+                    if (updates.isEmpty() || updates.any { item -> item in cartItems }) {
+                        cartItems.clear()
+                    }
+                    /** There are a cart items */
+                    cartItems.addAll(updates)
+                }
+            }
+        }
     }
 
     private fun getCartItemsIds() {

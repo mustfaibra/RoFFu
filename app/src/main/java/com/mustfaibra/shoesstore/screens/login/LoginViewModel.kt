@@ -9,6 +9,7 @@ import com.mustfaibra.shoesstore.sealed.DataResponse
 import com.mustfaibra.shoesstore.sealed.Error
 import com.mustfaibra.shoesstore.sealed.UiState
 import com.mustfaibra.shoesstore.utils.UserPref
+import com.skydoves.whatif.whatIf
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -39,31 +40,33 @@ class LoginViewModel @Inject constructor(
         onAuthenticated: () -> Unit,
         onAuthenticationFailed: () -> Unit,
     ) {
-        uiState.value = UiState.Loading
-        /** We will use the coroutine so that we don't block our dear : The UiThread */
-        viewModelScope.launch {
-            delay(3000)
-            userRepository.signInUser(
-                email = emailOrPhone,
-                password = password,
-            ).let {
-                when (it) {
-                    is DataResponse.Success -> {
-                        it.data?.let { user ->
-                            /** Authenticated successfully */
-                            uiState.value = UiState.Success
-                            UserPref.updateUser(user = user)
-                            onAuthenticated()
+        if(emailOrPhone.isBlank() || password.isBlank()) onAuthenticationFailed()
+        else {
+            uiState.value = UiState.Loading
+            /** We will use the coroutine so that we don't block our dear : The UiThread */
+            viewModelScope.launch {
+//                delay(3000)
+                userRepository.signInUser(
+                    email = emailOrPhone,
+                    password = password,
+                ).let {
+                    when (it) {
+                        is DataResponse.Success -> {
+                            it.data?.let { user ->
+                                /** Authenticated successfully */
+                                uiState.value = UiState.Success
+                                UserPref.updateUser(user = user)
+                                onAuthenticated()
+                            }
                         }
-                    }
-                    is DataResponse.Error -> {
-                        /** An error occurred while authenticating */
-                        uiState.value = UiState.Error(error = it.error ?: Error.Network)
-                        onAuthenticationFailed()
+                        is DataResponse.Error -> {
+                            /** An error occurred while authenticating */
+                            uiState.value = UiState.Error(error = it.error ?: Error.Network)
+                            onAuthenticationFailed()
+                        }
                     }
                 }
             }
         }
     }
-
 }

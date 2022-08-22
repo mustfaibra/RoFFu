@@ -41,14 +41,19 @@ fun SimpleLoadingDialog(
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.medium)
                 .background(MaterialTheme.colors.surface)
-                .padding(Dimension.sm),
+                .padding(Dimension.pagePadding),
             horizontalArrangement = Arrangement.spacedBy(Dimension.pagePadding.times(2)),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CircularProgressIndicator(color = MaterialTheme.colors.primary)
-            Text(text = title,
+            CircularProgressIndicator(
+                color = MaterialTheme.colors.primary,
+                strokeWidth = Dimension.elevation,
+            )
+            Text(
+                text = title,
                 modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.body1)
+                style = MaterialTheme.typography.body1,
+            )
         }
     }
 }

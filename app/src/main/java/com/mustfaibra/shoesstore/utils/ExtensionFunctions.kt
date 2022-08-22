@@ -194,6 +194,10 @@ fun String.getValidColor() = when (this) {
     else -> 0xFF000000
 }
 
+fun String.encryptCardNumber() : String {
+    return "**** ".repeat(3).plus(this.takeLast(4))
+}
+
 fun Double.getDiscountedValue(discount: Int) = this - this.times((discount.div(100)))
 
 fun List<LocalManufacturer>.getStructuredManufacturers(): List<Manufacturer> {

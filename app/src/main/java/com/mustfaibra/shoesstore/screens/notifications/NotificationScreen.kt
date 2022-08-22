@@ -3,6 +3,8 @@ package com.mustfaibra.shoesstore.screens.notifications
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -26,15 +28,17 @@ fun NotificationScreen(
         verticalArrangement = Arrangement.spacedBy(Dimension.pagePadding),
         contentPadding = PaddingValues(vertical = Dimension.pagePadding),
     ) {
+        item {
+            Text(
+                text = stringResource(R.string.notifications),
+                style = MaterialTheme.typography.button,
+                color = MaterialTheme.colors.onBackground,
+            )
+        }
         when (uiState) {
             is UiState.Loading -> {}
             is UiState.Success -> {
-                item {
-                    Text(
-                        text = stringResource(id = R.string.bookmarks),
-                        style = MaterialTheme.typography.h3,
-                    )
-                }
+
             }
             is UiState.Idle -> {}
             is UiState.Error -> {}

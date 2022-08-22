@@ -1,13 +1,25 @@
 package com.mustfaibra.shoesstore.screens.holder
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.ScaffoldState
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -16,10 +28,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.mustfaibra.shoesstore.components.AppBottomNav
+import com.mustfaibra.shoesstore.components.CustomSnackBar
+import com.mustfaibra.shoesstore.models.CartItem
 import com.mustfaibra.shoesstore.models.User
 import com.mustfaibra.shoesstore.providers.LocalNavHost
 import com.mustfaibra.shoesstore.screens.bookmarks.BookmarksScreen
 import com.mustfaibra.shoesstore.screens.cart.CartScreen
+import com.mustfaibra.shoesstore.screens.checkout.CheckoutScreen
 import com.mustfaibra.shoesstore.screens.home.HomeScreen
 import com.mustfaibra.shoesstore.screens.login.LoginScreen
 import com.mustfaibra.shoesstore.screens.notifications.NotificationScreen
@@ -31,7 +46,9 @@ import com.mustfaibra.shoesstore.screens.signup.SignupScreen
 import com.mustfaibra.shoesstore.screens.splash.SplashScreen
 import com.mustfaibra.shoesstore.sealed.Screen
 import com.mustfaibra.shoesstore.utils.UserPref
+import com.mustfaibra.shoesstore.utils.getDp
 import com.skydoves.whatif.whatIfNotNull
+import kotlinx.coroutines.launch
 
 @Composable
 fun HolderScreen(
@@ -46,94 +63,169 @@ fun HolderScreen(
     val productsOnCartIds = holderViewModel.productsOnCartIds
     val productsOnBookmarksIds = holderViewModel.productsOnBookmarksIds
     val user by remember { UserPref.user }
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+    val cartItems = holderViewModel.cartItems
+    val (snackBarColor, setSnackBarColor) = remember {
+        mutableStateOf(Color.White)
+    }
 
+    val snackBarTransition = updateTransition(
+        targetState = scaffoldState.snackbarHostState,
+        label = "SnackBarTransition"
+    )
 
-    ScaffoldSection(
-        controller = controller,
-        user = user,
-        productsOnCartIds = productsOnCartIds,
-        productsOnBookmarksIds = productsOnBookmarksIds,
-        onStatusBarColorChange = onStatusBarColorChange,
-        bottomNavigationContent = {
-            if (
-                currentDestinationAsState in destinations.map { it.route }
-                || currentDestinationAsState == Screen.Cart.route
-            ) {
-                AppBottomNav(
-                    activeRoute = currentDestinationAsState,
-                    backgroundColor = MaterialTheme.colors.surface,
-                    bottomNavDestinations = destinations,
-                    onActiveRouteChange = {
-                        if (it != currentDestinationAsState) {
-                            /** We should navigate to that new route */
-                            controller.navigate(it) {
-                                popUpTo(Screen.Home.route) {
-                                    saveState = true
+    val snackBarOffsetAnim by snackBarTransition.animateDp(
+        label = "snackBarOffsetAnim",
+        transitionSpec = {
+            TweenSpec(
+                durationMillis = 300,
+                easing = LinearEasing,
+            )
+        }
+    ) {
+        when (it.currentSnackbarData) {
+            null -> {
+                100.getDp()
+            }
+            else -> {
+                0.getDp()
+            }
+        }
+    }
+
+    Box {
+        ScaffoldSection(
+            controller = controller,
+            scaffoldState = scaffoldState,
+            user = user,
+            cartItems = cartItems,
+            productsOnCartIds = productsOnCartIds,
+            productsOnBookmarksIds = productsOnBookmarksIds,
+            onStatusBarColorChange = onStatusBarColorChange,
+            bottomNavigationContent = {
+                if (
+                    currentDestinationAsState in destinations.map { it.route }
+                    || currentDestinationAsState == Screen.Cart.route
+                ) {
+                    AppBottomNav(
+                        activeRoute = currentDestinationAsState,
+                        backgroundColor = MaterialTheme.colors.surface,
+                        bottomNavDestinations = destinations,
+                        onActiveRouteChange = {
+                            if (it != currentDestinationAsState) {
+                                /** We should navigate to that new route */
+                                controller.navigate(it) {
+                                    popUpTo(Screen.Home.route) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
                         }
+                    )
+                }
+            },
+            onSplashFinished = { nextDestination ->
+                controller.navigate(nextDestination.route) {
+                    popUpTo(Screen.Splash.route) {
+                        inclusive = true
                     }
+                }
+            },
+            onBoardFinished = {
+                controller.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Onboard.route) {
+                        inclusive = true
+                    }
+                }
+            },
+            onBackRequested = {
+                controller.popBackStack()
+            },
+            onNavigationRequested = { route, removePreviousRoute ->
+                if (removePreviousRoute) {
+                    controller.popBackStack()
+                }
+                controller.navigate(route)
+            },
+            onShowProductRequest = { productId ->
+                controller.navigate(
+                    Screen.ProductDetails.route
+                        .replace("{productId}", "$productId")
                 )
-            }
-        },
-        onSplashFinished = { nextDestination ->
-            controller.navigate(nextDestination.route) {
-                popUpTo(Screen.Splash.route) {
-                    inclusive = true
+            },
+            onUpdateCartRequest = { productId ->
+                holderViewModel.updateCart(
+                    productId = productId,
+                    currentlyOnCart = productId in productsOnCartIds,
+                )
+            },
+            onUpdateBookmarkRequest = { productId ->
+                holderViewModel.updateBookmarks(
+                    productId = productId,
+                    currentlyOnBookmarks = productId in productsOnBookmarksIds,
+                )
+            },
+            onUserNotAuthorized = { removeCurrentRoute ->
+                if (removeCurrentRoute) {
+                    controller.popBackStack()
+                }
+                controller.navigate(Screen.Login.route)
+            },
+            onToastRequested = { message, color ->
+                scope.launch {
+                    /** dismiss the previous one if its exist */
+                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+                    /** Update the snack bar color */
+                    setSnackBarColor(color)
+                    scaffoldState.snackbarHostState
+                        .showSnackbar(
+                            message = message,
+                            duration = SnackbarDuration.Short,
+                        )
                 }
             }
-        },
-        onBoardFinished = {
-            controller.navigate(Screen.Home.route) {
-                popUpTo(Screen.Onboard.route) {
-                    inclusive = true
-                }
-            }
-        },
-        onShowProductRequest = { productId ->
-            controller.navigate(
-                Screen.ProductDetails.route
-                    .replace("{productId}", "$productId")
-            )
-        },
-        onUpdateCartRequest = { productId ->
-            holderViewModel.updateCart(
-                productId = productId,
-                currentlyOnCart = productId in productsOnCartIds,
-            )
-        },
-        onUpdateBookmarkRequest = { productId ->
-            holderViewModel.updateBookmarks(
-                productId = productId,
-                currentlyOnBookmarks = productId in productsOnBookmarksIds,
-            )
-        },
-        onUserNotAuthorized = {
-            controller.navigate(Screen.Login.route)
-        }
-    )
+        )
+        CustomSnackBar(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .offset(y = snackBarOffsetAnim),
+            snackHost = scaffoldState.snackbarHostState,
+            backgroundColorProvider = { snackBarColor },
+        )
+    }
 }
 
 @Composable
 fun ScaffoldSection(
     controller: NavHostController,
+    scaffoldState: ScaffoldState,
     user: User?,
+    cartItems: List<CartItem>,
     productsOnCartIds: List<Int>,
     productsOnBookmarksIds: List<Int>,
     onStatusBarColorChange: (color: Color) -> Unit,
     onSplashFinished: (nextDestination: Screen) -> Unit,
     onBoardFinished: () -> Unit,
+    onNavigationRequested: (route: String, removePreviousRoute: Boolean) -> Unit,
+    onBackRequested: () -> Unit,
     onUpdateCartRequest: (productId: Int) -> Unit,
     onUpdateBookmarkRequest: (productId: Int) -> Unit,
     onShowProductRequest: (productId: Int) -> Unit,
-    onUserNotAuthorized: () -> Unit,
+    onUserNotAuthorized: (removeCurrentRoute: Boolean) -> Unit,
+    onToastRequested: (message: String, color: Color) -> Unit,
     bottomNavigationContent: @Composable () -> Unit,
 ) {
-    Scaffold { paddingValues ->
+    Scaffold(
+        scaffoldState = scaffoldState,
+        snackbarHost = {
+            scaffoldState.snackbarHostState
+        },
+    ) { paddingValues ->
         Column(
-            modifier = Modifier.padding(paddingValues),
+            Modifier.padding(paddingValues)
         ) {
             NavHost(
                 modifier = Modifier.weight(1f),
@@ -154,7 +246,10 @@ fun ScaffoldSection(
                 }
                 composable(Screen.Login.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
-                    LoginScreen()
+                    LoginScreen(
+                        onUserAuthenticated = onBackRequested,
+                        onToastRequested = onToastRequested,
+                    )
                 }
                 composable(Screen.Home.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
@@ -198,7 +293,35 @@ fun ScaffoldSection(
                 }
                 composable(Screen.Cart.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
-                    CartScreen(onProductClicked = onShowProductRequest)
+                    CartScreen(
+                        user = user,
+                        cartItems = cartItems,
+                        onProductClicked = onShowProductRequest,
+                        onUserNotAuthorized = { onUserNotAuthorized(false) },
+                        onCheckoutRequest = {
+                            onNavigationRequested(Screen.Checkout.route, false)
+                        },
+                    )
+                }
+                composable(route = Screen.Checkout.route) {
+                    onStatusBarColorChange(MaterialTheme.colors.background)
+                    user.whatIfNotNull(
+                        whatIf = {
+                            CheckoutScreen(
+                                cartItems = cartItems,
+                                onBackRequested = onBackRequested,
+                                onCheckoutSuccess = {
+                                    onNavigationRequested(Screen.Home.route, true)
+                                },
+                                onToastRequested = onToastRequested,
+                            )
+                        },
+                        whatIfNot = {
+                            LaunchedEffect(key1 = Unit) {
+                                onUserNotAuthorized(true)
+                            }
+                        },
+                    )
                 }
                 composable(Screen.Profile.route) {
                     user.whatIfNotNull(
@@ -208,7 +331,7 @@ fun ScaffoldSection(
                         },
                         whatIfNot = {
                             LaunchedEffect(key1 = Unit) {
-                                onUserNotAuthorized()
+                                onUserNotAuthorized(true)
                             }
                         },
                     )

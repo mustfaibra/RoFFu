@@ -21,9 +21,24 @@
     <string name="discover">Discover</string>
     <string name="share">Share</string>
     <string name="empty_cart">Clear cart</string>
-    <string name="checkout">Checkout now</string>
+    <string name="checkout_now">Checkout now</string>
+    <string name="checkout">Checkout</string>
     <string name="total">Total</string>
     <string name="favorite">Favorite</string>
     <string name="bookmarks">Bookmarks</string>
     <string name="login">Login</string>
+    <string name="privacy_and_policies"><![CDATA[Privacy & Policies]]></string>
+    <string name="orders_history">Orders History</string>
+    <string name="terms_and_conditions"><![CDATA[Terms & Conditions]]></string>
+    <string name="settings">Settings</string>
+    <string name="your_profile">Your Profile</string>
+    <string name="sub_total">Subtotal</string>
+    <string name="shipping">Shipping</string>
+    <string name="delivery_address">Delivery Address</string>
+    <string name="payment_methods">Payment Methods</string>
+    <string name="apple_pay">Apple Pay</string>
+    <string name="visa">Visa</string>
+    <string name="master_card">Master Card</string>
+    <string name="pay_now">Pay Now</string>
+    <string name="please_select_payment">Pleaes select payment method!</string>
 </resources>
