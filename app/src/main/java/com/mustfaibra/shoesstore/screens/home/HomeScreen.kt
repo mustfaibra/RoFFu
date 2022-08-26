@@ -372,7 +372,7 @@ fun ManufacturersSection(
                     contentDescription = null,
                     tint = contentColor,
                 )
-                if(activeBrandIndex == index){
+                if (activeBrandIndex == index) {
                     Text(
                         text = name,
                         style = MaterialTheme.typography.body1,

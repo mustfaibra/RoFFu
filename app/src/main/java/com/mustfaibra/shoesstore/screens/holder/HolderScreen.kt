@@ -24,9 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import com.mustfaibra.shoesstore.components.AppBottomNav
 import com.mustfaibra.shoesstore.components.CustomSnackBar
 import com.mustfaibra.shoesstore.models.CartItem
@@ -261,17 +263,27 @@ fun ScaffoldSection(
                         onBookmarkStateChanged = onUpdateBookmarkRequest,
                     )
                 }
-                composable(Screen.ProductDetails.route) {
+                composable(
+                    route = Screen.ProductDetails.route,
+                    arguments = listOf(
+                        navArgument(name = "productId") { type = NavType.IntType }
+                    ),
+                ) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
                     val productId = it.arguments?.getInt("productId")
                         ?: throw IllegalArgumentException("Product id is required")
 
                     ProductDetailsScreen(
                         productId = productId,
+                        cartItemsCount = cartItems.size,
                         isOnCartStateProvider = { productId in productsOnCartIds },
-                        isOnBookmarksStateProvider = {},
+                        isOnBookmarksStateProvider = { productId in productsOnBookmarksIds },
                         onUpdateCartState = onUpdateCartRequest,
                         onUpdateBookmarksState = onUpdateBookmarkRequest,
+                        onBackRequested = onBackRequested,
+                        onNavigateToCartRequested = {
+                            onNavigationRequested(Screen.Cart.route, false)
+                        }
                     )
                 }
                 composable(Screen.Notifications.route) {

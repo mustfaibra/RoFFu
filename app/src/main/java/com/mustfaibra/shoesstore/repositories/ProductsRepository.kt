@@ -3,6 +3,10 @@ package com.mustfaibra.shoesstore.repositories
 import com.mustfaibra.shoesstore.data.local.RoomDao
 import com.mustfaibra.shoesstore.models.BookmarkItem
 import com.mustfaibra.shoesstore.models.CartItem
+import com.mustfaibra.shoesstore.models.Product
+import com.mustfaibra.shoesstore.models.ProductDetails
+import com.mustfaibra.shoesstore.sealed.DataResponse
+import com.mustfaibra.shoesstore.sealed.Error
 import javax.inject.Inject
 
 class ProductsRepository @Inject constructor(
@@ -71,4 +75,22 @@ class ProductsRepository @Inject constructor(
 
     fun getLocalBookmarks() = dao.getBookmarkItems()
 
+    suspend fun getProductDetails(productId: Int): DataResponse<Product> {
+        /** Check the local storage */
+        dao.getProductDetails(productId = productId)?.let {
+            return DataResponse.Success(data = it.getStructuredProducts())
+        }
+        /** Doesn't exist on the local, check remote */
+        return DataResponse.Error(error = Error.Network)
+    }
+
+}
+
+private fun ProductDetails.getStructuredProducts(): Product {
+    return this.product.also {
+        it.colors = this.colors
+        it.reviews = this.reviews
+        it.sizes = this.sizes
+        it.manufacturer = this.manufacturer
+    }
 }

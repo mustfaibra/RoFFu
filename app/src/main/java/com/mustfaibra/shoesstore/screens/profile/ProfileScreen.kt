@@ -72,8 +72,8 @@ fun ProfileScreen(
             Card(
                 modifier = Modifier.clickable {  },
                 shape = MaterialTheme.shapes.medium,
-                backgroundColor = MaterialTheme.colors.primary,
-                contentColor = MaterialTheme.colors.onPrimary,
+                backgroundColor = MaterialTheme.colors.secondary,
+                contentColor = MaterialTheme.colors.onSecondary,
             ) {
                 Column(
                     modifier = Modifier.padding(Dimension.pagePadding),
@@ -199,6 +199,7 @@ fun ProfileHeaderSection(image: Int?, name: String, email: String?, phone: Strin
             Text(
                 text = email ?: "",
                 style = MaterialTheme.typography.body1,
+                color = MaterialTheme.colors.onBackground.copy(alpha = 0.7f),
             )
             Text(
                 text = phone ?: "",

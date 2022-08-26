@@ -361,6 +361,7 @@ fun ReactiveCartIcon(
 @Composable
 fun ReactiveBookmarkIcon(
     modifier: Modifier = Modifier,
+    iconSize: Dp = Dimension.smIcon,
     isOnBookmarks: Boolean,
     onBookmarkChange: () -> Unit,
 ) {
@@ -382,7 +383,7 @@ fun ReactiveBookmarkIcon(
             .clip(CircleShape)
             .clickable { onBookmarkChange() }
             .padding(Dimension.elevation)
-            .size(Dimension.smIcon),
+            .size(iconSize),
         tint = tint
     )
 }
@@ -433,7 +434,7 @@ fun ProductItemLayout(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(MaterialTheme.shapes.medium)
-                    .rotate(-45f),
+                    .rotate(-35f),
             )
             ReactiveBookmarkIcon(
                 modifier = Modifier.padding(Dimension.xs),

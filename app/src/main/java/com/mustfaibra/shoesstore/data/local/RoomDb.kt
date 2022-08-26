@@ -56,7 +56,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 1,
                 basicColorName = "dark-green",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -74,7 +74,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 1,
                 basicColorName = "lemon",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -92,7 +92,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 1,
                 basicColorName = "gold",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -116,7 +116,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 1,
                 basicColorName = "gray",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -140,7 +140,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 1,
                 basicColorName = "pink",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -164,7 +164,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 1,
                 basicColorName = "red",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -188,7 +188,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 1,
                 basicColorName = "black",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -209,7 +209,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 1,
                 basicColorName = "pink",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -230,7 +230,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 1,
                 basicColorName = "lemon",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -254,7 +254,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 2,
                 basicColorName = "green",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -272,7 +272,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 2,
                 basicColorName = "red",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -290,7 +290,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 2,
                 basicColorName = "gray",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -311,7 +311,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 2,
                 basicColorName = "black",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -332,7 +332,7 @@ abstract class RoomDb : RoomDatabase() {
                 manufacturerId = 2,
                 basicColorName = "red",
             ).also {
-                it.copies = mutableListOf(
+                it.colors = mutableListOf(
                     ProductColor(productId = it.id,
                         colorName = it.basicColorName,
                         image = it.image),
@@ -387,7 +387,7 @@ abstract class RoomDb : RoomDatabase() {
                     /** Insert the product itself */
                     dao.insertProduct(product = it)
                     /** Insert colors */
-                    it.copies?.forEach { productColor ->
+                    it.colors?.forEach { productColor ->
                         dao.insertOtherProductCopy(productColor)
                     }
                     /** Insert size */

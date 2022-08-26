@@ -212,7 +212,7 @@ fun List<LocalProduct>.getStructuredProducts(): List<Product> {
     return this.map { localProduct ->
         localProduct.product.also { product ->
             product.manufacturer = localProduct.manufacturer
-            product.copies = localProduct.copies
+            product.colors = localProduct.copies
             product.reviews = localProduct.reviews
             product.sizes = localProduct.sizes
         }
@@ -221,7 +221,7 @@ fun List<LocalProduct>.getStructuredProducts(): List<Product> {
 
 fun LocalProduct.getStructuredProduct() = this.product.also { product ->
     product.manufacturer = this.manufacturer
-    product.copies = this.copies
+    product.colors = this.copies
     product.reviews = this.reviews
     product.sizes = this.sizes
 }

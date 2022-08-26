@@ -368,7 +368,6 @@ fun CartItemLayout(
                         .offset(x = 0.getDp(), y = animatedOffset.getDp())
                         .size(Dimension.xlIcon)
                         .rotate(-45f),
-                    contentScale = ContentScale.Crop,
                 )
             }
         }

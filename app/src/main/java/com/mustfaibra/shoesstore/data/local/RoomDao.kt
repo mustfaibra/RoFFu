@@ -91,4 +91,7 @@ interface RoomDao {
     @Query("SELECT * FROM user WHERE token != null")
     suspend fun getLoggedUser(): User?
 
+    @Transaction
+    @Query("SELECT * FROM product WHERE id = :productId")
+    suspend fun getProductDetails(productId: Int): ProductDetails?
 }

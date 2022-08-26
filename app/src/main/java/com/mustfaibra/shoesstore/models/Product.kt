@@ -20,7 +20,7 @@ data class Product(
     @Ignore
     var manufacturer: Manufacturer? = null
     @Ignore
-    var copies: List<ProductColor>? = null
+    var colors: List<ProductColor>? = null
     @Ignore
     var reviews: List<Review>? = null
     @Ignore

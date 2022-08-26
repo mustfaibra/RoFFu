@@ -73,7 +73,7 @@ fun LoginScreen(
             ),
             backgroundColor = MaterialTheme.colors.surface,
             textColor = MaterialTheme.colors.onBackground,
-            imeAction = ImeAction.Search,
+            imeAction = ImeAction.Next,
             shape = MaterialTheme.shapes.large,
             leadingIcon = {
                 Icon(
@@ -109,7 +109,7 @@ fun LoginScreen(
             ),
             backgroundColor = MaterialTheme.colors.surface,
             textColor = MaterialTheme.colors.onBackground,
-            imeAction = ImeAction.Search,
+            imeAction = ImeAction.Done,
             shape = MaterialTheme.shapes.large,
             leadingIcon = {
                 Icon(

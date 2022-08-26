@@ -41,4 +41,6 @@
     <string name="master_card">Master Card</string>
     <string name="pay_now">Pay Now</string>
     <string name="please_select_payment">Pleaes select payment method!</string>
+    <string name="size">Size</string>
+    <string name="color">Color</string>
 </resources>
