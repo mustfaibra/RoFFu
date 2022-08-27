@@ -31,18 +31,19 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.components.CustomButton
-import com.mustfaibra.shoesstore.providers.LocalNavHost
 import com.mustfaibra.shoesstore.sealed.Orientation
-import com.mustfaibra.shoesstore.sealed.Screen
 import com.mustfaibra.shoesstore.ui.theme.Dimension
 import com.mustfaibra.shoesstore.utils.addMoveAnimation
 
 @Composable
-fun OnboardScreen(onboardViewModel: OnboardViewModel = hiltViewModel(), onBoardFinished: () -> Unit) {
+fun OnboardScreen(
+    onboardViewModel: OnboardViewModel = hiltViewModel(),
+    onBoardFinished: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colors.surface),
+            .background(MaterialTheme.colors.background),
         verticalArrangement = Arrangement.spacedBy(Dimension.pagePadding),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -57,7 +58,7 @@ fun OnboardScreen(onboardViewModel: OnboardViewModel = hiltViewModel(), onBoardF
             speed = 2f,
             restartOnPlay = true,
 
-        )
+            )
 
         LottieAnimation(
             modifier = Modifier
@@ -83,13 +84,14 @@ fun OnboardScreen(onboardViewModel: OnboardViewModel = hiltViewModel(), onBoardF
                         duration = 1000,
                     ),
                 text = buildAnnotatedString {
-                    append("Let's improve your")
+                    append("Journeys always start with ")
                     withStyle(
                         style = MaterialTheme.typography.h3
-                            .copy(color = MaterialTheme.colors.primary)
+                            .copy(color = MaterialTheme.colors.secondary)
                             .toSpanStyle()
                     ) {
-                        append(" appearance!")
+                        append(stringResource(id = R.string.app_name))
+                        append(" 🤩")
                     }
                 },
                 textAlign = TextAlign.Center,
@@ -128,7 +130,7 @@ fun OnboardScreen(onboardViewModel: OnboardViewModel = hiltViewModel(), onBoardF
                 buttonColor = MaterialTheme.colors.primary,
                 shape = MaterialTheme.shapes.large,
                 padding = PaddingValues(
-                    vertical = Dimension.sm,
+                    vertical = Dimension.md,
                     horizontal = Dimension.pagePadding.times(2f)
                 ),
                 onButtonClicked = {

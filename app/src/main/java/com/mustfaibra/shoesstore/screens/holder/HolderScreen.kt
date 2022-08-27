@@ -234,7 +234,7 @@ fun ScaffoldSection(
             NavHost(
                 modifier = Modifier.weight(1f),
                 navController = controller,
-                startDestination = Screen.Home.route
+                startDestination = Screen.Splash.route
             ) {
                 composable(Screen.Splash.route) {
                     onStatusBarColorChange(MaterialTheme.colors.primary)

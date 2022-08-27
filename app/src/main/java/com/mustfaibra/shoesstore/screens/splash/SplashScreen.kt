@@ -1,14 +1,11 @@
 package com.mustfaibra.shoesstore.screens.splash
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -16,10 +13,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.sealed.Screen
-import com.mustfaibra.shoesstore.ui.theme.Dimension
 import com.skydoves.whatif.whatIfNotNull
 import kotlinx.coroutines.delay
 
@@ -33,8 +32,10 @@ fun SplashScreen(
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(MaterialTheme.colors.primary,
-                        MaterialTheme.colors.primaryVariant)
+                    colors = listOf(
+                        MaterialTheme.colors.primary,
+                        MaterialTheme.colors.secondary,
+                    )
                 )
             ),
         verticalArrangement = Arrangement.Center,
@@ -70,12 +71,11 @@ fun SplashScreen(
             }
         }
 
-        Image(
-            modifier = Modifier.size(Dimension.xlIcon),
-            imageVector = Icons.Rounded.Home,
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(color = MaterialTheme.colors.onPrimary)
+        Text(
+            text = stringResource(id = R.string.app_name),
+            style = MaterialTheme.typography.h1.copy(fontSize = 64.sp),
+            color = MaterialTheme.colors.onPrimary,
+            fontFamily = FontFamily.Cursive,
         )
-
     }
 }
