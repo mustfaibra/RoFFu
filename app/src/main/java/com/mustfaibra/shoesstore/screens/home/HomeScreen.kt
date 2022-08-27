@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -213,7 +214,9 @@ fun HomeScreen(
                 /** Show selected brand's data */
                 items(brands[currentSelectedBrandIndex].products) { product ->
                     ProductItemLayout(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        cartOffset = IntOffset(x = 0, y = 500),
                         image = product.image,
                         price = product.price,
                         title = product.name,
@@ -226,7 +229,7 @@ fun HomeScreen(
                         onChangeCartState = {
                             onCartStateChanged(product.id)
                         },
-                        onChangeBookmarkState = { onBookmarkStateChanged(product.id) }
+                        onChangeBookmarkState = { onBookmarkStateChanged(product.id) },
                     )
                 }
             }

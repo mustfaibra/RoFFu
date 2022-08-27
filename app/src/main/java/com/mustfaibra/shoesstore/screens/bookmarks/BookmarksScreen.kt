@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.components.ProductItemLayout
@@ -68,7 +69,7 @@ fun BookmarksScreen(
                 items(bookmarkProducts) { product ->
                     ProductItemLayout(
                         modifier = Modifier.fillMaxWidth(),
-                        image = product.image,
+                        cartOffset = IntOffset(x = 0, y = -100),
                         price = product.price,
                         title = product.name,
                         discount = product.discount,
@@ -80,7 +81,8 @@ fun BookmarksScreen(
                         onChangeCartState = {
                             onCartStateChanged(product.id)
                         },
-                        onChangeBookmarkState = { onBookmarkStateChanged(product.id) }
+                        onChangeBookmarkState = { onBookmarkStateChanged(product.id) },
+                        image = product.image,
                     )
                 }
             }

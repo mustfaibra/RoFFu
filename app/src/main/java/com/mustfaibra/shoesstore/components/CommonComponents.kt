@@ -1,7 +1,10 @@
 package com.mustfaibra.shoesstore.components
 
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateIntOffset
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +51,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import coil.compose.rememberImagePainter
 import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.sealed.MenuOption
@@ -391,7 +396,7 @@ fun ReactiveBookmarkIcon(
 @Composable
 fun ProductItemLayout(
     modifier: Modifier = Modifier,
-    image: Int,
+    cartOffset: IntOffset,
     price: Double,
     title: String,
     discount: Int,
@@ -400,6 +405,7 @@ fun ProductItemLayout(
     onProductClicked: () -> Unit,
     onChangeCartState: () -> Unit,
     onChangeBookmarkState: () -> Unit,
+    image: Int,
 ) {
     Column(
         modifier = modifier
@@ -412,6 +418,25 @@ fun ProductItemLayout(
             ),
         verticalArrangement = Arrangement.spacedBy(Dimension.pagePadding)
     ) {
+        val (productFloatToCartAnim, setFloatingAnim) =
+            remember { mutableStateOf(false) }
+        val productTransition = updateTransition(
+            targetState = productFloatToCartAnim,
+            label = "Product transition"
+        )
+        val animatedFloatingProductOffset by productTransition.animateIntOffset(
+            label = "Product transition - offset",
+            targetValueByState = {
+                if (it) cartOffset
+                else IntOffset(x = 0, y = 0)
+            },
+            transitionSpec = {
+                TweenSpec(
+                    durationMillis = 500,
+                    easing = LinearEasing,
+                )
+            }
+        )
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
@@ -432,6 +457,15 @@ fun ProductItemLayout(
                 painter = rememberImagePainter(data = image),
                 contentDescription = null,
                 modifier = Modifier
+                    .fillMaxSize()
+                    .clip(MaterialTheme.shapes.medium)
+                    .rotate(-35f),
+            )
+            Image(
+                painter = rememberImagePainter(data = image),
+                contentDescription = null,
+                modifier = Modifier
+                    .offset { animatedFloatingProductOffset }
                     .fillMaxSize()
                     .clip(MaterialTheme.shapes.medium)
                     .rotate(-35f),
@@ -466,7 +500,12 @@ fun ProductItemLayout(
                 )
                 ReactiveCartIcon(
                     isOnCart = onCart,
-                    onCartChange = onChangeCartState,
+                    onCartChange = {
+                        if (!onCart) {
+                            setFloatingAnim(true)
+                        }
+                        onChangeCartState()
+                    },
                 )
             }
             /** Product's name */
