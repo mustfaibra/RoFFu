@@ -1,15 +1,19 @@
 package com.mustfaibra.shoesstore.screens.login
 
 
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.runtime.mutableStateOf
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mustfaibra.shoesstore.repositories.UserRepository
 import com.mustfaibra.shoesstore.sealed.DataResponse
 import com.mustfaibra.shoesstore.sealed.Error
 import com.mustfaibra.shoesstore.sealed.UiState
+import com.mustfaibra.shoesstore.utils.LOGGED_USER_ID
 import com.mustfaibra.shoesstore.utils.UserPref
-import com.skydoves.whatif.whatIf
+import com.mustfaibra.shoesstore.utils.dataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -19,12 +23,14 @@ import javax.inject.Inject
  * A View model with hiltViewModel annotation that is used to access this view model everywhere needed
  */
 @HiltViewModel
+@SuppressLint("StaticFieldLeak")
 class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val context: Context,
 ) : ViewModel() {
     val uiState = mutableStateOf<UiState>(UiState.Idle)
-    val emailOrPhone = mutableStateOf<String?>(null)
-    val password = mutableStateOf<String?>(null)
+    val emailOrPhone = mutableStateOf<String?>("mustfaibra@gmail.com")
+    val password = mutableStateOf<String?>("12344321")
 
     fun updateEmailOrPhone(value: String?) {
         this.emailOrPhone.value = value
@@ -40,12 +46,12 @@ class LoginViewModel @Inject constructor(
         onAuthenticated: () -> Unit,
         onAuthenticationFailed: () -> Unit,
     ) {
-        if(emailOrPhone.isBlank() || password.isBlank()) onAuthenticationFailed()
+        if (emailOrPhone.isBlank() || password.isBlank()) onAuthenticationFailed()
         else {
             uiState.value = UiState.Loading
             /** We will use the coroutine so that we don't block our dear : The UiThread */
             viewModelScope.launch {
-//                delay(3000)
+                delay(3000)
                 userRepository.signInUser(
                     email = emailOrPhone,
                     password = password,
@@ -56,6 +62,8 @@ class LoginViewModel @Inject constructor(
                                 /** Authenticated successfully */
                                 uiState.value = UiState.Success
                                 UserPref.updateUser(user = user)
+                                /** save user id */
+                                saveUserIdToPreferences(userId = user.userId)
                                 onAuthenticated()
                             }
                         }
@@ -67,6 +75,12 @@ class LoginViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun saveUserIdToPreferences(userId: Int) {
+        context.dataStore.edit {
+            it[LOGGED_USER_ID] = userId
         }
     }
 }

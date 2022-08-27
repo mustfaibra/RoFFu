@@ -44,15 +44,17 @@ import com.mustfaibra.shoesstore.components.IconButton
 import com.mustfaibra.shoesstore.components.SecondaryTopBar
 import com.mustfaibra.shoesstore.components.SummaryRow
 import com.mustfaibra.shoesstore.models.CartItem
-import com.mustfaibra.shoesstore.models.PaymentMethod
+import com.mustfaibra.shoesstore.models.UserPaymentProviderDetails
 import com.mustfaibra.shoesstore.sealed.UiState
 import com.mustfaibra.shoesstore.ui.theme.Dimension
 import com.mustfaibra.shoesstore.utils.encryptCardNumber
 import com.skydoves.whatif.whatIf
+import com.skydoves.whatif.whatIfNotNull
 
 @Composable
 fun CheckoutScreen(
     cartItems: List<CartItem>,
+    onChangeLocationRequested: () -> Unit,
     onBackRequested: () -> Unit,
     onCheckoutSuccess: () -> Unit,
     onToastRequested: (message: String, color: Color) -> Unit,
@@ -62,13 +64,6 @@ fun CheckoutScreen(
         checkoutViewModel.setUserCart(cartItems = cartItems)
     }
 
-    val paymentMethods = checkoutViewModel.paymentMethods
-    val selectedPaymentMethodId by remember {
-        checkoutViewModel.selectedPaymentMethodId
-    }
-    val subTotal by remember {
-        checkoutViewModel.subTotalPrice
-    }
     val checkoutUiState by remember { checkoutViewModel.checkoutState }
     val context = LocalContext.current
 
@@ -126,11 +121,25 @@ fun CheckoutScreen(
                 .weight(weight = 1f)
                 .verticalScroll(state = rememberScrollState()),
         ) {
+            val paymentMethods = checkoutViewModel.paymentProviders
+            val location by remember {
+                checkoutViewModel.deliveryAddress
+            }
+            val selectedPaymentMethodId by remember {
+                checkoutViewModel.selectedPaymentMethodId
+            }
+            val subTotal by remember { checkoutViewModel.subTotalPrice }
             /** Delivery Location */
-            DeliveryLocationSection(
-                address = "AlTaif 51, st 5",
-                city = "Khartoum, Sudan",
-                onChangeLocationRequested = {},
+            location?.whatIfNotNull(
+                whatIf = {
+                    DeliveryLocationSection(
+                        address = it.address,
+                        city = "${it.city}, ${it.country}",
+                        onChangeLocationRequested = {
+//                          onChangeLocationRequested()
+                        },
+                    )
+                }
             )
             /** Payment methods */
             PaymentMethodsSection(
@@ -214,6 +223,8 @@ fun CheckoutScreen(
                     ),
                     onButtonClicked = {
                         checkoutViewModel.makeTransactionPayment(
+                            items = cartItems,
+                            total = subTotal.plus(15),
                             onCheckoutSuccess = onCheckoutSuccess,
                             onCheckoutFailed = { message ->
                                 onToastRequested(
@@ -283,7 +294,7 @@ fun DeliveryLocationSection(
 
 @Composable
 fun PaymentMethodsSection(
-    methods: List<PaymentMethod>,
+    methods: List<UserPaymentProviderDetails>,
     selectedPaymentMethodId: String?,
     onMethodChange: (methodId: String) -> Unit,
 ) {
@@ -304,7 +315,7 @@ fun PaymentMethodsSection(
                 DrawableButton(
                     paddingValue = PaddingValues(Dimension.sm),
                     elevation = Dimension.elevation,
-                    painter = painterResource(id = method.icon),
+                    painter = painterResource(id = method.paymentProvider.icon),
                     onButtonClicked = { },
                     backgroundColor = MaterialTheme.colors.background,
                     shape = MaterialTheme.shapes.medium,
@@ -314,19 +325,17 @@ fun PaymentMethodsSection(
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(
-                        text = stringResource(id = method.title),
+                        text = stringResource(id = method.paymentProvider.title),
                         style = MaterialTheme.typography.body1,
                     )
-                    method.account?.let {
-                        Text(
-                            text = method.account.encryptCardNumber(),
-                            style = MaterialTheme.typography.caption,
-                        )
-                    }
+                    Text(
+                        text = method.userPaymentProvider.cardNumber.encryptCardNumber(),
+                        style = MaterialTheme.typography.caption,
+                    )
                 }
                 RadioButton(
-                    selected = method.id == selectedPaymentMethodId,
-                    onClick = { onMethodChange(method.id) },
+                    selected = method.userPaymentProvider.providerId == selectedPaymentMethodId,
+                    onClick = { onMethodChange(method.userPaymentProvider.providerId) },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = MaterialTheme.colors.secondary,
                         unselectedColor = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),

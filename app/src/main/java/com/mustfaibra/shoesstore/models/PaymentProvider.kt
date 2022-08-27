@@ -2,10 +2,12 @@ package com.mustfaibra.shoesstore.models
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-data class PaymentMethod(
-    val id: String,
+@Entity
+data class PaymentProvider(
+    @PrimaryKey val id: String,
     @StringRes val title: Int,
     @DrawableRes val icon: Int,
-    val account: String? = null,
 )

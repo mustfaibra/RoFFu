@@ -32,6 +32,7 @@ import com.mustfaibra.shoesstore.models.LocalManufacturer
 import com.mustfaibra.shoesstore.models.LocalProduct
 import com.mustfaibra.shoesstore.models.Manufacturer
 import com.mustfaibra.shoesstore.models.Product
+import com.mustfaibra.shoesstore.models.ProductDetails
 import com.mustfaibra.shoesstore.sealed.DataResponse
 import com.mustfaibra.shoesstore.sealed.Error
 import com.mustfaibra.shoesstore.sealed.Orientation
@@ -40,7 +41,7 @@ import io.ktor.client.features.*
 import io.ktor.client.statement.*
 import org.json.JSONException
 import org.json.JSONObject
-import timber.log.Timber
+import java.text.SimpleDateFormat
 import java.util.*
 
 /** An extension function that is used to convert the API response to a JSONObject & return the field message from it */
@@ -88,23 +89,13 @@ fun Modifier.mirror(): Modifier {
     }
 }
 
-
-/** An extension function to convert time in milliseconds to a formatted time HH:MM:ss */
-@Composable
-fun Long.toTimeString(): String {
-    return if (this <= 0) "--:--" else {
-        val time = this / 1000 // convert from milliseconds to seconds
-        val timeString = StringBuilder()
-
-        val hours = time / 3600
-        timeString.append(if (hours > 0) hours.prettifyTime().plus(":") else "")
-        val minutes = (time % 3600) / 60
-        timeString.append(minutes.prettifyTime().plus(":"))
-        val seconds = time % 60
-        timeString.append(seconds.prettifyTime())
-        Timber.d("Milliseconds is $this and formatted time is $timeString")
-        return timeString.toString()
-    }
+/** An extension function on Date's object that is used to get a formatted date & time.
+ * It takes the pattern that you want.
+ * Shortcuts: yyyy: year , MM: month , dd: day , HH: hour , mm: minutes.
+ */
+fun Date.getFormattedDate(pattern: String): String {
+    val simpleDateFormat = SimpleDateFormat(pattern, Locale.ENGLISH)
+    return simpleDateFormat.format(this.time)
 }
 
 private fun Long.prettifyTime() = if (this < 10) "0$this" else "$this"
@@ -194,7 +185,7 @@ fun String.getValidColor() = when (this) {
     else -> 0xFF000000
 }
 
-fun String.encryptCardNumber() : String {
+fun String.encryptCardNumber(): String {
     return "**** ".repeat(3).plus(this.takeLast(4))
 }
 
@@ -240,7 +231,12 @@ fun MutableList<BookmarkItemWithProduct>.getStructuredBookmarkItems(): List<Prod
     }
 }
 
-fun List<Any?>.neitherNull() : Boolean {
-    return this.all { it != null }
+fun ProductDetails.getStructuredProducts(): Product {
+    return this.product.also {
+        it.colors = this.colors
+        it.reviews = this.reviews
+        it.sizes = this.sizes
+        it.manufacturer = this.manufacturer
+    }
 }
 

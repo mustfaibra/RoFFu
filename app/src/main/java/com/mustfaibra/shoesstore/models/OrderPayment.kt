@@ -8,9 +8,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class OrderPayment(
     @PrimaryKey(autoGenerate = true) val orderPaymentId: Int? = null,
-    val orderId: Int,
-    val total: Double,
-    val provider: String,
-    val createdAt: String,
-    val modifiedAt: String,
+    val orderId: String,
+    val providerId: String?,
 )

@@ -18,9 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.mustfaibra.shoesstore.providers.LocalNavHost
 import com.mustfaibra.shoesstore.sealed.Screen
 import com.mustfaibra.shoesstore.ui.theme.Dimension
+import com.skydoves.whatif.whatIfNotNull
 import kotlinx.coroutines.delay
 
 @Composable
@@ -33,18 +33,37 @@ fun SplashScreen(
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(MaterialTheme.colors.primary, MaterialTheme.colors.primaryVariant)
+                    colors = listOf(MaterialTheme.colors.primary,
+                        MaterialTheme.colors.primaryVariant)
                 )
             ),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val isAppLaunchedBefore by splashViewModel.isAppLaunchedBefore.collectAsState(initial = false)
+        val isAppLaunchedBefore by splashViewModel.isAppLaunchedBefore
+            .collectAsState(initial = false)
+        val loggedUserId by splashViewModel.loggedUserId
+            .collectAsState(initial = null)
+
         LaunchedEffect(key1 = Unit) {
             delay(3000)
             if (isAppLaunchedBefore) {
-                /** Launched before, we should go to home now */
-                onSplashFinished(Screen.Home)
+                loggedUserId.whatIfNotNull(
+                    whatIf = {
+                        splashViewModel.checkLoggedUser(
+                            userId = it,
+                            onCheckFinish = {
+                                /** Launched before and user checked, we should go to home now */
+                                onSplashFinished(Screen.Home)
+                            }
+                        )
+                    },
+                    whatIfNot = {
+                        /** Launched before, we should go to home now */
+                        onSplashFinished(Screen.Home)
+                    }
+                )
+
             } else {
                 /** Not launched before so we should navigate to Onboard screen */
                 onSplashFinished(Screen.Onboard)

@@ -38,9 +38,11 @@ import com.mustfaibra.shoesstore.screens.bookmarks.BookmarksScreen
 import com.mustfaibra.shoesstore.screens.cart.CartScreen
 import com.mustfaibra.shoesstore.screens.checkout.CheckoutScreen
 import com.mustfaibra.shoesstore.screens.home.HomeScreen
+import com.mustfaibra.shoesstore.screens.locationpicker.LocationPickerScreen
 import com.mustfaibra.shoesstore.screens.login.LoginScreen
 import com.mustfaibra.shoesstore.screens.notifications.NotificationScreen
 import com.mustfaibra.shoesstore.screens.onboard.OnboardScreen
+import com.mustfaibra.shoesstore.screens.orderhistory.OrdersHistoryScreen
 import com.mustfaibra.shoesstore.screens.productdetails.ProductDetailsScreen
 import com.mustfaibra.shoesstore.screens.profile.ProfileScreen
 import com.mustfaibra.shoesstore.screens.search.SearchScreen
@@ -64,7 +66,7 @@ fun HolderScreen(
     val currentDestinationAsState = getActiveRoute(navController = controller)
     val productsOnCartIds = holderViewModel.productsOnCartIds
     val productsOnBookmarksIds = holderViewModel.productsOnBookmarksIds
-    val user by remember { UserPref.user }
+    val user by UserPref.user
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
     val cartItems = holderViewModel.cartItems
@@ -323,9 +325,12 @@ fun ScaffoldSection(
                                 cartItems = cartItems,
                                 onBackRequested = onBackRequested,
                                 onCheckoutSuccess = {
-                                    onNavigationRequested(Screen.Home.route, true)
+                                    onNavigationRequested(Screen.OrderHistory.route, true)
                                 },
                                 onToastRequested = onToastRequested,
+                                onChangeLocationRequested = {
+                                    onNavigationRequested(Screen.LocationPicker.route, false)
+                                }
                             )
                         },
                         whatIfNot = {
@@ -335,11 +340,25 @@ fun ScaffoldSection(
                         },
                     )
                 }
+                composable(Screen.LocationPicker.route) {
+                    onStatusBarColorChange(MaterialTheme.colors.background)
+                    LocationPickerScreen(
+                        onLocationRequested = {
+
+                        },
+                        onLocationPicked = {
+
+                        }
+                    )
+                }
                 composable(Screen.Profile.route) {
                     user.whatIfNotNull(
                         whatIf = {
                             onStatusBarColorChange(MaterialTheme.colors.background)
-                            ProfileScreen(user = it)
+                            ProfileScreen(
+                                user = it,
+                                onNavigationRequested = onNavigationRequested,
+                            )
                         },
                         whatIfNot = {
                             LaunchedEffect(key1 = Unit) {
@@ -348,7 +367,21 @@ fun ScaffoldSection(
                         },
                     )
                 }
-
+                composable(Screen.OrderHistory.route) {
+                    user.whatIfNotNull(
+                        whatIf = {
+                            onStatusBarColorChange(MaterialTheme.colors.background)
+                            OrdersHistoryScreen(
+                                onBackRequested = onBackRequested,
+                            )
+                        },
+                        whatIfNot = {
+                            LaunchedEffect(key1 = Unit) {
+                                onUserNotAuthorized(true)
+                            }
+                        },
+                    )
+                }
             }
             /** Now we lay down our bottom navigation component */
             bottomNavigationContent()

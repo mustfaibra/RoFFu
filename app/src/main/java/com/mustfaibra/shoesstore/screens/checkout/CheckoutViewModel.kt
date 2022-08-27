@@ -2,13 +2,16 @@ package com.mustfaibra.shoesstore.screens.checkout
 
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.models.CartItem
-import com.mustfaibra.shoesstore.models.PaymentMethod
+import com.mustfaibra.shoesstore.models.Location
+import com.mustfaibra.shoesstore.models.UserPaymentProviderDetails
 import com.mustfaibra.shoesstore.repositories.ProductsRepository
+import com.mustfaibra.shoesstore.repositories.UserRepository
 import com.mustfaibra.shoesstore.sealed.Error
 import com.mustfaibra.shoesstore.sealed.UiState
 import com.mustfaibra.shoesstore.utils.getDiscountedValue
@@ -24,33 +27,44 @@ import javax.inject.Inject
 @HiltViewModel
 class CheckoutViewModel @Inject constructor(
     private val productsRepository: ProductsRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
-    val paymentMethods = listOf(
-        PaymentMethod(
-            id = "apple",
-            title = R.string.apple_pay,
-            icon = R.drawable.ic_apple,
-            account = "8402-5739-2039-5784"
-        ),
-        PaymentMethod(
-            id = "master",
-            title = R.string.master_card,
-            icon = R.drawable.ic_master_card,
-            account = "3323-8202-4748-2009"
-        ),
-        PaymentMethod(
-            id = "visa",
-            title = R.string.visa,
-            icon = R.drawable.ic_visa,
-            account = "7483-02836-4839-283"
-        ),
-    )
+
+    private val _deliveryAddress = mutableStateOf<Location?>(null)
+    val deliveryAddress: State<Location?> = _deliveryAddress
+
+    private val _paymentProviders: MutableList<UserPaymentProviderDetails> = mutableStateListOf()
+    val paymentProviders: List<UserPaymentProviderDetails> = _paymentProviders
+
     private val _selectedPaymentMethodId = mutableStateOf<String?>(null)
     val selectedPaymentMethodId: State<String?> = _selectedPaymentMethodId
     val subTotalPrice = mutableStateOf(0.0)
 
     private val _checkoutState = mutableStateOf<UiState>(UiState.Idle)
     val checkoutState: State<UiState> = _checkoutState
+
+    init {
+        getUserPaymentProviders()
+        getUserLocations()
+    }
+
+    private fun getUserPaymentProviders() {
+        viewModelScope.launch {
+            userRepository.getUserPaymentProviders().let {
+                _paymentProviders.addAll(it)
+            }
+        }
+    }
+
+    private fun getUserLocations() {
+        viewModelScope.launch {
+            userRepository.getUserLocations().let {
+                if (it.isNotEmpty()) {
+                    _deliveryAddress.value = it.first()
+                }
+            }
+        }
+    }
 
     fun updateSelectedPaymentMethod(id: String) {
         _selectedPaymentMethodId.value = id
@@ -66,8 +80,10 @@ class CheckoutViewModel @Inject constructor(
     }
 
     fun makeTransactionPayment(
+        items: List<CartItem>,
+        total: Double,
         onCheckoutSuccess: () -> Unit,
-        onCheckoutFailed: (message: Int) -> Unit
+        onCheckoutFailed: (message: Int) -> Unit,
     ) {
         _checkoutState.value = UiState.Idle
         _selectedPaymentMethodId.value.whatIfNotNull(
@@ -76,9 +92,16 @@ class CheckoutViewModel @Inject constructor(
                 viewModelScope.launch {
                     delay(5000)
                     /** Now clear the cart */
-                    productsRepository.clearCart()
-                    _checkoutState.value = UiState.Success
-                    onCheckoutSuccess()
+                    productsRepository.saveOrders(
+                        items = items,
+                        providerId = _selectedPaymentMethodId.value,
+                        total = total,
+                        deliveryAddressId = _deliveryAddress.value?.id,
+                        onFinished = {
+                            _checkoutState.value = UiState.Success
+                            onCheckoutSuccess()
+                        }
+                    )
                 }
             },
             whatIfNot = {

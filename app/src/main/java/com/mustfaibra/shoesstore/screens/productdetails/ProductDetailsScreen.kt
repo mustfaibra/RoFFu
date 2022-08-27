@@ -1,5 +1,13 @@
 package com.mustfaibra.shoesstore.screens.productdetails
 
+import androidx.compose.animation.core.InfiniteRepeatableSpec
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
@@ -30,7 +39,9 @@ import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.components.CustomButton
 import com.mustfaibra.shoesstore.components.DrawableButton
 import com.mustfaibra.shoesstore.components.ReactiveBookmarkIcon
+import com.mustfaibra.shoesstore.sealed.Orientation
 import com.mustfaibra.shoesstore.ui.theme.Dimension
+import com.mustfaibra.shoesstore.utils.addMoveAnimation
 import com.mustfaibra.shoesstore.utils.getValidColor
 
 @Composable
@@ -61,9 +72,23 @@ fun ProductDetailsScreen(
         val color by remember { productDetailsViewModel.selectedColor }
         val size by remember { productDetailsViewModel.selectedSize }
         val scale by remember { productDetailsViewModel.sizeScale }
+        val animatedScale by animateFloatAsState(
+            targetValue = scale,
+            animationSpec = TweenSpec(
+                durationMillis = 500,
+                easing = LinearEasing,
+            )
+        )
 
         /** Details screen header */
         DetailsHeader(
+            modifier = Modifier
+                .addMoveAnimation(
+                    orientation = Orientation.Vertical,
+                    from = -100.dp,
+                    to = 0.dp,
+                    duration = 700,
+                ),
             cartItemsCount = cartItemsCount,
             onBackRequested = onBackRequested,
             onNavigateToCartRequested = onNavigateToCartRequested,
@@ -76,7 +101,14 @@ fun ProductDetailsScreen(
             product?.let {
                 /** Product's name */
                 Text(
-                    modifier = Modifier.padding(horizontal = Dimension.pagePadding),
+                    modifier = Modifier
+                        .padding(horizontal = Dimension.pagePadding)
+                        .addMoveAnimation(
+                            orientation = Orientation.Vertical,
+                            from = 100.dp,
+                            to = 0.dp,
+                            duration = 700,
+                        ),
                     text = it.name,
                     style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Black),
                     textAlign = TextAlign.Center,
@@ -87,33 +119,79 @@ fun ProductDetailsScreen(
                         .padding(top = Dimension.pagePadding)
                         .weight(1f),
                 ) {
-                    Image(
-                        painter = rememberImagePainter(
-                            data = it.colors?.find { productColor ->
-                                productColor.colorName == color
-                            }?.image ?: it.image
-                        ),
-                        contentDescription = null,
+                    Column(
                         modifier = Modifier
+                            .fillMaxWidth(animatedScale)
                             .align(Alignment.Center)
                             .offset(x = (-20).dp)
-                            .fillMaxWidth(scale)
-                            .aspectRatio(1f)
-                            .rotate(-(45f)),
-                    )
+                    ) {
+                        val infiniteTransition = rememberInfiniteTransition()
+                        val animatedOffset by infiniteTransition.animateFloat(
+                            initialValue = -20f, targetValue = 40f,
+                            animationSpec = InfiniteRepeatableSpec(
+                                animation = TweenSpec(
+                                    durationMillis = 1300,
+                                    easing = LinearEasing,
+                                ),
+                                repeatMode = RepeatMode.Reverse,
+                            ),
+                        )
+                        Image(
+                            painter = rememberImagePainter(
+                                data = it.colors?.find { productColor ->
+                                    productColor.colorName == color
+                                }?.image ?: it.image
+                            ),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .offset { IntOffset(y = animatedOffset.toInt(), x = 0) }
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
+                                .rotate(-(40f)),
+                        )
+                        Canvas(modifier = Modifier.fillMaxWidth()) {
+
+                        }
+                    }
                     /** Sizes section */
                     it.sizes?.let { sizes ->
                         SizesSection(
-                            modifier = Modifier.align(Alignment.TopStart),
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .addMoveAnimation(
+                                    orientation = Orientation.Horizontal,
+                                    from = -60.dp,
+                                    to = 0.dp,
+                                    duration = 700,
+                                ),
                             sizes = sizes.map { size -> size.size },
                             pickedSizeProvider = { size },
                             onSizePicked = productDetailsViewModel::updateSelectedSize,
                         )
                     }
+                    /** Price section */
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .addMoveAnimation(
+                                orientation = Orientation.Vertical,
+                                from = 200.dp,
+                                to = 0.dp,
+                                duration = 700,
+                            ),
+                        text = "$${it.price}",
+                        style = MaterialTheme.typography.h4,
+                    )
                     /** Bookmarking button */
                     ReactiveBookmarkIcon(
                         modifier = Modifier
-                            .align(Alignment.TopEnd),
+                            .align(Alignment.TopEnd)
+                            .addMoveAnimation(
+                                orientation = Orientation.Horizontal,
+                                from = 60.dp,
+                                to = 0.dp,
+                                duration = 700,
+                            ),
                         iconSize = Dimension.smIcon,
                         isOnBookmarks = isOnBookmarksStateProvider(),
                         onBookmarkChange = { onUpdateBookmarksState(productId) }
@@ -121,7 +199,14 @@ fun ProductDetailsScreen(
                     /** colors section */
                     it.colors?.let { colors ->
                         ColorsSection(
-                            modifier = Modifier.align(Alignment.BottomEnd),
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .addMoveAnimation(
+                                    orientation = Orientation.Vertical,
+                                    from = 200.dp,
+                                    to = 0.dp,
+                                    duration = 700,
+                                ),
                             colors = colors.map { color -> color.colorName },
                             pickedColorProvider = { color },
                             onColorPicked = productDetailsViewModel::updateSelectedColor,
@@ -130,7 +215,14 @@ fun ProductDetailsScreen(
                 }
                 /** Add / Remove from cart button */
                 CustomButton(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .addMoveAnimation(
+                            orientation = Orientation.Vertical,
+                            from = -(40.dp),
+                            to = 0.dp,
+                            duration = 700,
+                        ),
                     text = if (isOnCartStateProvider()) "Remove from cart" else "Add to cart",
                     onButtonClicked = { onUpdateCartState(productId) },
                     buttonColor = MaterialTheme.colors.primary,
@@ -145,12 +237,13 @@ fun ProductDetailsScreen(
 
 @Composable
 fun DetailsHeader(
+    modifier: Modifier = Modifier,
     cartItemsCount: Int,
     onBackRequested: () -> Unit,
     onNavigateToCartRequested: () -> Unit,
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -255,10 +348,6 @@ fun ColorsSection(
         colors.forEach { color ->
             Box(
                 modifier = Modifier
-                    .shadow(
-                        elevation = Dimension.elevation,
-                        shape = MaterialTheme.shapes.small,
-                    )
                     .size(Dimension.smIcon)
                     .border(
                         width = 2.dp,

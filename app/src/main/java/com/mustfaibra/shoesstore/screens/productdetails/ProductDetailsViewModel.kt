@@ -68,9 +68,9 @@ class ProductDetailsViewModel @Inject constructor(
         if(size == _selectedSize.value) return
         /** Update the product's image scale depending on the new size */
         _sizeScale.value = if (size < _selectedSize.value) {
-            _sizeScale.value.minus(0.05f)
+            _sizeScale.value.minus(0.1f)
         } else {
-            _sizeScale.value.plus(0.05f)
+            _sizeScale.value.plus(0.1f)
         }
         _selectedSize.value = size
     }

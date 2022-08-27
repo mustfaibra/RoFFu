@@ -30,6 +30,9 @@ sealed class Screen(
     object ProductDetails :
         Screen(route = "product-details/{productId}", title = R.string.product_details)
 
+    object LocationPicker :
+        Screen(route = "location-picker", title = R.string.delivery_address)
+
     object Settings : Screen(
         route = "settings",
         title = R.string.settings,
@@ -37,19 +40,19 @@ sealed class Screen(
     )
 
     object OrderHistory : Screen(
-        route = "settings",
+        route = "orders",
         title = R.string.orders_history,
         icon = R.drawable.ic_history,
     )
 
     object PrivacyPolicies : Screen(
-        route = "settings",
+        route = "privacy-policies",
         title = R.string.privacy_and_policies,
         icon = R.drawable.ic_lock,
     )
 
     object TermsConditions : Screen(
-        route = "settings",
+        route = "terms-conditions",
         title = R.string.terms_and_conditions,
         icon = R.drawable.ic_terms,
     )

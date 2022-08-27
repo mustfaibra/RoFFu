@@ -35,7 +35,12 @@ class HolderViewModel @Inject constructor(
         viewModelScope.launch {
             productsRepository.getLocalCart().distinctUntilChanged().collect {
                 it.getStructuredCartItems().let { updates ->
-                    if (updates.isEmpty() || updates.any { item -> item in cartItems }) {
+                    if (
+                        updates.isEmpty()
+                        || updates.any { item ->
+                            item.cartId in cartItems.map { cartItem -> cartItem.cartId }
+                        }
+                    ) {
                         cartItems.clear()
                     }
                     /** There are a cart items */

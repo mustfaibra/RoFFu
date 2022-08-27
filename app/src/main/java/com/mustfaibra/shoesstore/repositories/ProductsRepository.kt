@@ -3,18 +3,22 @@ package com.mustfaibra.shoesstore.repositories
 import com.mustfaibra.shoesstore.data.local.RoomDao
 import com.mustfaibra.shoesstore.models.BookmarkItem
 import com.mustfaibra.shoesstore.models.CartItem
+import com.mustfaibra.shoesstore.models.Order
+import com.mustfaibra.shoesstore.models.OrderDetails
+import com.mustfaibra.shoesstore.models.OrderItem
+import com.mustfaibra.shoesstore.models.OrderPayment
 import com.mustfaibra.shoesstore.models.Product
-import com.mustfaibra.shoesstore.models.ProductDetails
 import com.mustfaibra.shoesstore.sealed.DataResponse
 import com.mustfaibra.shoesstore.sealed.Error
+import com.mustfaibra.shoesstore.utils.UserPref
+import com.mustfaibra.shoesstore.utils.getFormattedDate
+import com.mustfaibra.shoesstore.utils.getStructuredProducts
+import java.util.*
 import javax.inject.Inject
 
 class ProductsRepository @Inject constructor(
     private val dao: RoomDao,
 ) {
-
-    /** Cart operations */
-    fun getCartProductsIdsFlow() = dao.getCartProductsIds()
 
     suspend fun updateCartState(productId: Int, alreadyOnCart: Boolean) {
         /** Handle the local storing process */
@@ -41,19 +45,58 @@ class ProductsRepository @Inject constructor(
         dao.insertCartItem(cartItem = cartItem)
     }
 
-    fun getLocalCart() = dao.getCartItems()
-
-    suspend fun clearCart() {
-        dao.clearCart()
-    }
-
     suspend fun updateCartItemQuantity(id: Int, quantity: Int) {
         /** Update local cart item quantity */
         dao.updateCartItemQuantity(productId = id, quantity = quantity)
     }
 
+    suspend fun saveOrders(
+        items: List<CartItem>,
+        providerId: String?,
+        total: Double,
+        deliveryAddressId: Int?,
+        onFinished: () -> Unit,
+    ) {
+        UserPref.user.value?.let {
+            val order = Order(
+                orderId = Date().getFormattedDate("yyyyMMddHHmmSS"),
+                userId = it.userId,
+                total = total,
+                locationId = deliveryAddressId,
+            )
+            val orderPayment = OrderPayment(
+                orderId = order.orderId,
+                providerId = providerId,
+            )
 
-    /** Bookmarks operations */
+            /** Fake the success of delivering the previous order */
+            dao.updateOrdersAsDelivered()
+
+            dao.insertOrder(order = order)
+            dao.insertOrderPayment(payment = orderPayment)
+            dao.insertOrderItems(
+                items = items.map { cartItem ->
+                    OrderItem(
+                        orderId = order.orderId,
+                        quantity = cartItem.quantity,
+                        productId = cartItem.productId,
+                        userId = it.userId,
+                    )
+                },
+            )
+            /** Then clear our cart */
+            dao.clearCart()
+            onFinished()
+        }
+    }
+
+    fun getCartProductsIdsFlow() = dao.getCartProductsIds()
+
+    fun getLocalCart() = dao.getCartItems()
+
+    suspend fun clearCart() {
+        dao.clearCart()
+    }
 
     fun getBookmarksProductsIdsFlow() = dao.getBookmarkProductsIds()
 
@@ -84,13 +127,13 @@ class ProductsRepository @Inject constructor(
         return DataResponse.Error(error = Error.Network)
     }
 
-}
-
-private fun ProductDetails.getStructuredProducts(): Product {
-    return this.product.also {
-        it.colors = this.colors
-        it.reviews = this.reviews
-        it.sizes = this.sizes
-        it.manufacturer = this.manufacturer
+    suspend fun getOrdersHistory(): DataResponse<List<OrderDetails>> {
+        /** Check the local storage */
+        dao.getLocalOrders().let {
+            if (it.isNotEmpty())
+                return DataResponse.Success(data = it)
+        }
+        /** Doesn't exist on the local, check remote */
+        return DataResponse.Error(error = Error.Empty)
     }
 }

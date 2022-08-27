@@ -5,15 +5,17 @@ import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mustfaibra.shoesstore.models.User
 import com.mustfaibra.shoesstore.repositories.UserRepository
 import com.mustfaibra.shoesstore.sealed.UiState
 import com.mustfaibra.shoesstore.utils.APP_LAUNCHED
+import com.mustfaibra.shoesstore.utils.LOGGED_USER_ID
+import com.mustfaibra.shoesstore.utils.UserPref
 import com.mustfaibra.shoesstore.utils.dataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,17 +31,18 @@ class SplashViewModel @Inject constructor(
         it[APP_LAUNCHED] ?: false
     }
 
-    val user = mutableStateOf<User?>(null)
-    val isUserChecked = mutableStateOf(false)
+    val loggedUserId = context.dataStore.data.map {
+        it[LOGGED_USER_ID]
+    }
 
-    init {
+
+    fun checkLoggedUser(userId: Int, onCheckFinish: () -> Unit) {
         viewModelScope.launch {
-            userRepository.getLoggedUser().let {
-                if (it != null) {
-                    user.value = it
-                }
+            userRepository.getLoggedUser(userId = userId)?.let {
+                Timber.d("Logged user exist !")
+                UserPref.updateUser(user = it)
             }
-            isUserChecked.value = true
+            onCheckFinish()
         }
     }
 }

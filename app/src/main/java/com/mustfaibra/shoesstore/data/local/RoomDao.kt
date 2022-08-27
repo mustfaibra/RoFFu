@@ -18,6 +18,7 @@ interface RoomDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertManufacturer(manufacturer: Manufacturer)
 
+    @Transaction
     @Query("SELECT * FROM manufacturer")
     suspend fun getManufacturersWithProducts(): List<LocalManufacturer>
 
@@ -64,6 +65,30 @@ interface RoomDao {
     @Query("Delete FROM cart")
     suspend fun clearCart()
 
+    /** Payment providers operations */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun savePaymentProvider(paymentProvider: PaymentProvider)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveUserPaymentProvider(userPaymentProvider: UserPaymentProvider)
+
+    @Transaction
+    @Query("SELECT * FROM userPaymentProviders")
+    suspend fun getUserPaymentProviders(): List<UserPaymentProviderDetails>
+
+    /** Order operations */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrder(order: Order)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrderPayment(payment: OrderPayment)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrderItems(items: List<OrderItem>)
+
+    @Transaction
+    @Query("SELECT * FROM orders")
+    suspend fun getLocalOrders(): List<OrderDetails>
 
     /** Bookmarks operations */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -88,10 +113,26 @@ interface RoomDao {
 
 
     /** User operations */
-    @Query("SELECT * FROM user WHERE token != null")
-    suspend fun getLoggedUser(): User?
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveUser(user: User)
+
+    @Query("SELECT * FROM user WHERE userId = :userId LIMIT 1")
+    suspend fun getLoggedUser(userId: Int): User?
 
     @Transaction
     @Query("SELECT * FROM product WHERE id = :productId")
     suspend fun getProductDetails(productId: Int): ProductDetails?
+
+    /** Locations operations */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveLocation(location: Location)
+
+    @Query("SELECT * FROM location")
+    suspend fun getUserLocations(): List<Location>
+
+    @Query("UPDATE orders SET isDelivered = :delivered")
+    suspend fun updateOrdersAsDelivered(delivered: Boolean = true)
+
+    @Query("SELECT * FROM user WHERE email = :email AND password = :password LIMIT 1")
+    suspend fun fakeSignIn(email: String, password: String): User?
 }

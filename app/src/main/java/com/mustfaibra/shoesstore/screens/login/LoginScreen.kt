@@ -199,7 +199,7 @@ fun LoginScreen(
                 onButtonClicked = {},
                 backgroundColor = MaterialTheme.colors.background,
                 shape = MaterialTheme.shapes.medium,
-                iconSize = Dimension.mdIcon,
+                iconSize = Dimension.mdIcon.times(0.8f),
             )
             DrawableButton(
                 paddingValue = PaddingValues(Dimension.sm),
@@ -208,7 +208,7 @@ fun LoginScreen(
                 onButtonClicked = {},
                 backgroundColor = MaterialTheme.colors.background,
                 shape = MaterialTheme.shapes.medium,
-                iconSize = Dimension.mdIcon,
+                iconSize = Dimension.mdIcon.times(0.8f),
             )
             DrawableButton(
                 paddingValue = PaddingValues(Dimension.sm),
@@ -217,7 +217,7 @@ fun LoginScreen(
                 onButtonClicked = {},
                 backgroundColor = MaterialTheme.colors.background,
                 shape = MaterialTheme.shapes.medium,
-                iconSize = Dimension.mdIcon,
+                iconSize = Dimension.mdIcon.times(0.8f),
             )
             DrawableButton(
                 paddingValue = PaddingValues(Dimension.sm),
@@ -226,7 +226,7 @@ fun LoginScreen(
                 onButtonClicked = {},
                 backgroundColor = MaterialTheme.colors.background,
                 shape = MaterialTheme.shapes.medium,
-                iconSize = Dimension.mdIcon,
+                iconSize = Dimension.mdIcon.times(0.8f),
             )
         }
         Divider(Modifier.padding(vertical = Dimension.pagePadding))

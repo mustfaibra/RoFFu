@@ -37,6 +37,7 @@ import com.mustfaibra.shoesstore.ui.theme.Dimension
 @Composable
 fun ProfileScreen(
     user: User,
+    onNavigationRequested: (route: String, removePreviousRoute: Boolean) -> Unit,
     profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val generalOptions = remember {
@@ -70,7 +71,7 @@ fun ProfileScreen(
         /** Add virtual card section */
         item {
             Card(
-                modifier = Modifier.clickable {  },
+                modifier = Modifier.clickable { },
                 shape = MaterialTheme.shapes.medium,
                 backgroundColor = MaterialTheme.colors.secondary,
                 contentColor = MaterialTheme.colors.onSecondary,
@@ -115,7 +116,11 @@ fun ProfileScreen(
             ProfileOptionItem(
                 icon = option.icon,
                 title = option.title,
-                onOptionClicked = {},
+                onOptionClicked = {
+                    if (option is Screen.OrderHistory) {
+                        onNavigationRequested(option.route, false)
+                    }
+                },
             )
         }
         /** Personal options */

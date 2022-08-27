@@ -15,8 +15,11 @@ import javax.inject.Provider
         Manufacturer::class,
         Review::class,
         User::class,
+        PaymentProvider::class,
+        UserPaymentProvider::class,
         Product::class,
         BookmarkItem::class,
+        Location::class,
         CartItem::class,
         Order::class,
         OrderItem::class,
@@ -37,16 +40,16 @@ abstract class RoomDb : RoomDatabase() {
     ) : RoomDatabase.Callback() {
         private val description =
             "This is the description text that is supposed to be long enough to show how the UI looks, so it's not a real text.\n"
-        val manufacturers = listOf(
+        private val manufacturers = listOf(
             Manufacturer(id = 1, name = "Nike", icon = R.drawable.ic_nike),
             Manufacturer(id = 2, name = "Adidas", icon = R.drawable.adidas_48),
         )
-        val advertisements = listOf(
+        private val advertisements = listOf(
             Advertisement(1, R.drawable.air_huarache_gold_black_ads, 1, 0),
             Advertisement(2, R.drawable.pegasus_trail_gortex_ads, 2, 0),
             Advertisement(3, R.drawable.blazer_low_black_ads, 3, 0),
         )
-        val nikeProducts = listOf(
+        private val nikeProducts = listOf(
             Product(
                 id = 1,
                 name = "Pegasus Trail Gortex Green",
@@ -63,24 +66,6 @@ abstract class RoomDb : RoomDatabase() {
                     ProductColor(productId = it.id,
                         colorName = "lemon",
                         image = R.drawable.pegasus_trail_3_gore_tex_lemon),
-                )
-            },
-            Product(
-                id = 2,
-                name = "Pegasus Trail Gortex Lemon",
-                image = R.drawable.pegasus_trail_3_gore_tex_lemon,
-                price = 155.0,
-                description = description,
-                manufacturerId = 1,
-                basicColorName = "lemon",
-            ).also {
-                it.colors = mutableListOf(
-                    ProductColor(productId = it.id,
-                        colorName = it.basicColorName,
-                        image = it.image),
-                    ProductColor(productId = it.id,
-                        colorName = "dark-green",
-                        image = R.drawable.pegasus_trail_3_gore_tex_dark_green),
                 )
             },
             Product(
@@ -108,78 +93,6 @@ abstract class RoomDb : RoomDatabase() {
                 )
             },
             Product(
-                id = 4,
-                name = "Air Huarache Gray",
-                image = R.drawable.air_huarache_le_gray_dark,
-                price = 149.0,
-                description = description,
-                manufacturerId = 1,
-                basicColorName = "gray",
-            ).also {
-                it.colors = mutableListOf(
-                    ProductColor(productId = it.id,
-                        colorName = it.basicColorName,
-                        image = it.image),
-                    ProductColor(productId = it.id,
-                        colorName = "gold",
-                        image = R.drawable.air_huarache_le_gold_black),
-                    ProductColor(productId = it.id,
-                        colorName = "pink",
-                        image = R.drawable.air_huarache_le_pink_black),
-                    ProductColor(productId = it.id,
-                        colorName = "red",
-                        image = R.drawable.air_huarache_le_red_black),
-                )
-            },
-            Product(
-                id = 5,
-                name = "Air Huarache Pink",
-                image = R.drawable.air_huarache_le_pink_black,
-                price = 125.0,
-                description = description,
-                manufacturerId = 1,
-                basicColorName = "pink",
-            ).also {
-                it.colors = mutableListOf(
-                    ProductColor(productId = it.id,
-                        colorName = it.basicColorName,
-                        image = it.image),
-                    ProductColor(productId = it.id,
-                        colorName = "gray",
-                        image = R.drawable.air_huarache_le_gray_dark),
-                    ProductColor(productId = it.id,
-                        colorName = "gold",
-                        image = R.drawable.air_huarache_le_gold_black),
-                    ProductColor(productId = it.id,
-                        colorName = "red",
-                        image = R.drawable.air_huarache_le_red_black),
-                )
-            },
-            Product(
-                id = 6,
-                name = "Air Huarache Red",
-                image = R.drawable.air_huarache_le_red_black,
-                price = 145.0,
-                description = description,
-                manufacturerId = 1,
-                basicColorName = "red",
-            ).also {
-                it.colors = mutableListOf(
-                    ProductColor(productId = it.id,
-                        colorName = it.basicColorName,
-                        image = it.image),
-                    ProductColor(productId = it.id,
-                        colorName = "gray",
-                        image = R.drawable.air_huarache_le_gray_dark),
-                    ProductColor(productId = it.id,
-                        colorName = "pink",
-                        image = R.drawable.air_huarache_le_pink_black),
-                    ProductColor(productId = it.id,
-                        colorName = "gold",
-                        image = R.drawable.air_huarache_le_gold_black),
-                )
-            },
-            Product(
                 id = 7,
                 name = "Blazer Low Black",
                 image = R.drawable.blazer_low_black,
@@ -200,51 +113,8 @@ abstract class RoomDb : RoomDatabase() {
                         image = R.drawable.blazer_low_light_green),
                 )
             },
-            Product(
-                id = 8,
-                name = "Blazer Low Pink",
-                image = R.drawable.blazer_low_pink,
-                price = 189.99,
-                description = description,
-                manufacturerId = 1,
-                basicColorName = "pink",
-            ).also {
-                it.colors = mutableListOf(
-                    ProductColor(productId = it.id,
-                        colorName = it.basicColorName,
-                        image = it.image),
-                    ProductColor(productId = it.id,
-                        colorName = "black",
-                        image = R.drawable.blazer_low_black),
-                    ProductColor(productId = it.id,
-                        colorName = "lemon",
-                        image = R.drawable.blazer_low_light_green),
-                )
-            },
-            Product(
-                id = 9,
-                name = "Blazer Low Light Green",
-                image = R.drawable.blazer_low_light_green,
-                price = 170.0,
-                description = description,
-                manufacturerId = 1,
-                basicColorName = "lemon",
-            ).also {
-                it.colors = mutableListOf(
-                    ProductColor(productId = it.id,
-                        colorName = it.basicColorName,
-                        image = it.image),
-                    ProductColor(productId = it.id,
-                        colorName = "pink",
-                        image = R.drawable.blazer_low_pink),
-                    ProductColor(productId = it.id,
-                        colorName = "black",
-                        image = R.drawable.blazer_low_black),
-                )
-            },
-
-            )
-        val adidasProducts = listOf(
+        )
+        private val adidasProducts = listOf(
             Product(
                 id = 10,
                 name = "Defiant Generation Green",
@@ -263,24 +133,7 @@ abstract class RoomDb : RoomDatabase() {
                         image = R.drawable.defiant_generation_red),
                 )
             },
-            Product(
-                id = 11,
-                name = "Defiant Generation Red",
-                image = R.drawable.defiant_generation_red,
-                price = 155.0,
-                description = description,
-                manufacturerId = 2,
-                basicColorName = "red",
-            ).also {
-                it.colors = mutableListOf(
-                    ProductColor(productId = it.id,
-                        colorName = it.basicColorName,
-                        image = it.image),
-                    ProductColor(productId = it.id,
-                        colorName = "green",
-                        image = R.drawable.defiant_generation_green),
-                )
-            },
+
             Product(
                 id = 12,
                 name = "Solarthon Primegreen Gray",
@@ -302,48 +155,42 @@ abstract class RoomDb : RoomDatabase() {
                         image = R.drawable.solarthon_primegreen_red),
                 )
             },
-            Product(
-                id = 13,
-                name = "Solarthon Primegreen Black",
-                image = R.drawable.solarthon_primegreen_black,
-                price = 149.0,
-                description = description,
-                manufacturerId = 2,
-                basicColorName = "black",
-            ).also {
-                it.colors = mutableListOf(
-                    ProductColor(productId = it.id,
-                        colorName = it.basicColorName,
-                        image = it.image),
-                    ProductColor(productId = it.id,
-                        colorName = "gray",
-                        image = R.drawable.solarthon_primegreen_gray),
-                    ProductColor(productId = it.id,
-                        colorName = "red",
-                        image = R.drawable.solarthon_primegreen_red),
-                )
-            },
-            Product(
-                id = 14,
-                name = "Solarthon Primegreen Red",
-                image = R.drawable.solarthon_primegreen_red,
-                price = 125.0,
-                description = description,
-                manufacturerId = 2,
-                basicColorName = "red",
-            ).also {
-                it.colors = mutableListOf(
-                    ProductColor(productId = it.id,
-                        colorName = it.basicColorName,
-                        image = it.image),
-                    ProductColor(productId = it.id,
-                        colorName = "black",
-                        image = R.drawable.solarthon_primegreen_black),
-                    ProductColor(productId = it.id,
-                        colorName = "gray",
-                        image = R.drawable.solarthon_primegreen_gray),
-                )
-            },
+        )
+        private val paymentProviders = listOf(
+            PaymentProvider(
+                id = "apple",
+                title = R.string.apple_pay,
+                icon = R.drawable.ic_apple,
+            ),
+            PaymentProvider(
+                id = "master",
+                title = R.string.master_card,
+                icon = R.drawable.ic_master_card,
+            ),
+            PaymentProvider(
+                id = "visa",
+                title = R.string.visa,
+                icon = R.drawable.ic_visa,
+            ),
+        )
+        private val userPaymentAccounts = listOf(
+            UserPaymentProvider(
+                providerId = "apple",
+                cardNumber = "8402-5739-2039-5784"
+            ),
+            UserPaymentProvider(
+                providerId = "master",
+                cardNumber = "3323-8202-4748-2009"
+            ),
+            UserPaymentProvider(
+                providerId = "visa",
+                cardNumber = "7483-02836-4839-2833"
+            ),
+        )
+        private val userLocation = Location(
+            address = "AlTaif 51, st 5",
+            city = "Khartoum",
+            country = "Sudan",
         )
 
         init {
@@ -370,6 +217,20 @@ abstract class RoomDb : RoomDatabase() {
         }
 
         private suspend fun populateDatabase(dao: RoomDao, scope: CoroutineScope) {
+            /** Save users */
+            scope.launch{
+                dao.saveUser(
+                    User(
+                        userId = 1,
+                        name = "Mustafa Ibrahim",
+                        profile = R.drawable.mustapha_profile,
+                        phone = "+249922943879",
+                        email = "mustfaibra@gmail.com",
+                        password = "12344321",
+                        token = "ds2f434ls2ks2lsj2ls",
+                    )
+                )
+            }
             /** insert manufacturers */
             scope.launch {
                 manufacturers.forEach {
@@ -382,6 +243,7 @@ abstract class RoomDb : RoomDatabase() {
                     dao.insertAdvertisement(it)
                 }
             }
+            /** Insert products */
             scope.launch {
                 nikeProducts.plus(adidasProducts).forEach {
                     /** Insert the product itself */
@@ -395,6 +257,22 @@ abstract class RoomDb : RoomDatabase() {
                         dao.insertSize(productSize)
                     }
                 }
+            }
+            /** Insert payment providers */
+            scope.launch {
+                paymentProviders.forEach {
+                    dao.savePaymentProvider(paymentProvider = it)
+                }
+            }
+            /** Insert user's payment providers */
+            scope.launch {
+                userPaymentAccounts.forEach {
+                    dao.saveUserPaymentProvider(it)
+                }
+            }
+            /** Insert user's location */
+            scope.launch {
+                dao.saveLocation(location = userLocation)
             }
         }
     }

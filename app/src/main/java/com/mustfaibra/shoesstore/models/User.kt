@@ -12,6 +12,7 @@ data class User(
     val profile: Int? = null,
     val phone: String? = null,
     val email: String? = null,
+    val password: String? = null,
     val gender: Int? = 1,
     val token: String? = null,
 )
