@@ -21,7 +21,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -99,9 +101,13 @@ fun HolderScreen(
     }
 
     Box {
+        val (cartOffset, setCartOffset) = remember {
+            mutableStateOf(IntOffset(0, 0))
+        }
         ScaffoldSection(
             controller = controller,
             scaffoldState = scaffoldState,
+            cartOffset = cartOffset,
             user = user,
             cartItems = cartItems,
             productsOnCartIds = productsOnCartIds,
@@ -116,6 +122,9 @@ fun HolderScreen(
                         activeRoute = currentDestinationAsState,
                         backgroundColor = MaterialTheme.colors.surface,
                         bottomNavDestinations = destinations,
+                        onCartOffsetMeasured = {offset->
+                            setCartOffset(offset)
+                        },
                         onActiveRouteChange = {
                             if (it != currentDestinationAsState) {
                                 /** We should navigate to that new route */
@@ -206,6 +215,7 @@ fun HolderScreen(
 fun ScaffoldSection(
     controller: NavHostController,
     scaffoldState: ScaffoldState,
+    cartOffset: IntOffset,
     user: User?,
     cartItems: List<CartItem>,
     productsOnCartIds: List<Int>,
@@ -237,7 +247,7 @@ fun ScaffoldSection(
                 startDestination = Screen.Splash.route
             ) {
                 composable(Screen.Splash.route) {
-                    onStatusBarColorChange(MaterialTheme.colors.primary)
+                    onStatusBarColorChange(MaterialTheme.colors.background)
                     SplashScreen(onSplashFinished = onSplashFinished)
                 }
                 composable(Screen.Onboard.route) {
@@ -258,34 +268,12 @@ fun ScaffoldSection(
                 composable(Screen.Home.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
                     HomeScreen(
+                        cartOffset = cartOffset,
                         cartProductsIds = productsOnCartIds,
                         bookmarkProductsIds = productsOnBookmarksIds,
                         onProductClicked = onShowProductRequest,
                         onCartStateChanged = onUpdateCartRequest,
                         onBookmarkStateChanged = onUpdateBookmarkRequest,
-                    )
-                }
-                composable(
-                    route = Screen.ProductDetails.route,
-                    arguments = listOf(
-                        navArgument(name = "productId") { type = NavType.IntType }
-                    ),
-                ) {
-                    onStatusBarColorChange(MaterialTheme.colors.background)
-                    val productId = it.arguments?.getInt("productId")
-                        ?: throw IllegalArgumentException("Product id is required")
-
-                    ProductDetailsScreen(
-                        productId = productId,
-                        cartItemsCount = cartItems.size,
-                        isOnCartStateProvider = { productId in productsOnCartIds },
-                        isOnBookmarksStateProvider = { productId in productsOnBookmarksIds },
-                        onUpdateCartState = onUpdateCartRequest,
-                        onUpdateBookmarksState = onUpdateBookmarkRequest,
-                        onBackRequested = onBackRequested,
-                        onNavigateToCartRequested = {
-                            onNavigationRequested(Screen.Cart.route, false)
-                        }
                     )
                 }
                 composable(Screen.Notifications.route) {
@@ -299,6 +287,7 @@ fun ScaffoldSection(
                 composable(Screen.Bookmark.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
                     BookmarksScreen(
+                        cartOffset = cartOffset,
                         cartProductsIds = productsOnCartIds,
                         onProductClicked = onShowProductRequest,
                         onCartStateChanged = onUpdateCartRequest,
@@ -317,7 +306,7 @@ fun ScaffoldSection(
                         },
                     )
                 }
-                composable(route = Screen.Checkout.route) {
+                composable(Screen.Checkout.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
                     user.whatIfNotNull(
                         whatIf = {
@@ -362,7 +351,7 @@ fun ScaffoldSection(
                         },
                         whatIfNot = {
                             LaunchedEffect(key1 = Unit) {
-                                onUserNotAuthorized(true)
+                                onUserNotAuthorized(false)
                             }
                         },
                     )
@@ -380,6 +369,29 @@ fun ScaffoldSection(
                                 onUserNotAuthorized(true)
                             }
                         },
+                    )
+                }
+                composable(
+                    route = Screen.ProductDetails.route,
+                    arguments = listOf(
+                        navArgument(name = "productId") { type = NavType.IntType }
+                    ),
+                ) {
+                    onStatusBarColorChange(MaterialTheme.colors.background)
+                    val productId = it.arguments?.getInt("productId")
+                        ?: throw IllegalArgumentException("Product id is required")
+
+                    ProductDetailsScreen(
+                        productId = productId,
+                        cartItemsCount = cartItems.size,
+                        isOnCartStateProvider = { productId in productsOnCartIds },
+                        isOnBookmarksStateProvider = { productId in productsOnBookmarksIds },
+                        onUpdateCartState = onUpdateCartRequest,
+                        onUpdateBookmarksState = onUpdateBookmarkRequest,
+                        onBackRequested = onBackRequested,
+                        onNavigateToCartRequested = {
+                            onNavigationRequested(Screen.Cart.route, false)
+                        }
                     )
                 }
             }

@@ -26,6 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,6 +53,7 @@ import timber.log.Timber
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
+    cartOffset: IntOffset,
     cartProductsIds: List<Int>,
     bookmarkProductsIds: List<Int>,
     onProductClicked: (productId: Int) -> Unit,
@@ -216,7 +218,7 @@ fun HomeScreen(
                     ProductItemLayout(
                         modifier = Modifier
                             .fillMaxWidth(),
-                        cartOffset = IntOffset(x = 0, y = 500),
+                        cartOffset = cartOffset,
                         image = product.image,
                         price = product.price,
                         title = product.name,

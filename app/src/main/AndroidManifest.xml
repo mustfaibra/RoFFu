@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.mustfaibra.shoesstore">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name="com.mustfaibra.shoesstore.MyApplication"
@@ -17,6 +17,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppTemplate"
         tools:targetApi="31">
+        <profileable
+            android:shell="true"
+            tools:targetApi="q" />
+
         <activity
             android:name="com.mustfaibra.shoesstore.MainActivity"
             android:exported="true"

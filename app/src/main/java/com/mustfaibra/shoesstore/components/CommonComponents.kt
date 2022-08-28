@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateInt
 import androidx.compose.animation.core.animateIntOffset
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
@@ -28,6 +29,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +44,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -59,6 +63,7 @@ import com.mustfaibra.shoesstore.sealed.Screen
 import com.mustfaibra.shoesstore.ui.theme.Dimension
 import com.mustfaibra.shoesstore.utils.getDiscountedValue
 import com.mustfaibra.shoesstore.utils.getDp
+import kotlin.math.roundToInt
 
 @Composable
 fun CustomInputField(
@@ -177,6 +182,7 @@ fun AppBottomNav(
     activeRoute: String,
     bottomNavDestinations: List<Screen>,
     backgroundColor: Color,
+    onCartOffsetMeasured: (offset: IntOffset) -> Unit,
     onActiveRouteChange: (route: String) -> Unit,
 ) {
     Box(
@@ -184,8 +190,14 @@ fun AppBottomNav(
             .fillMaxWidth()
             .background(backgroundColor)
     ) {
+        val (cartOffsetY, setCartOffsetY) = remember {
+            mutableStateOf(0)
+        }
         Row(
             modifier = Modifier
+                .onGloballyPositioned {
+                    setCartOffsetY(it.size.height)
+                }
                 .fillMaxWidth()
                 .padding(
                     horizontal = Dimension.pagePadding,
@@ -213,16 +225,37 @@ fun AppBottomNav(
                 }
             }
         }
+
         DrawableButton(
             modifier = Modifier
+                .onGloballyPositioned {
+                    it
+                        .positionInWindow()
+                        .let { offset ->
+                            onCartOffsetMeasured(
+                                IntOffset(
+                                    x = offset.x
+                                        .minus(Dimension.xlIcon.value)
+                                        .roundToInt(),
+                                    y = offset.y
+                                        .plus(cartOffsetY.div(2))
+                                        .roundToInt(),
+                                )
+                            )
+                        }
+                }
                 .align(Alignment.TopCenter)
-                .offset(y = -(Dimension.md.plus(Dimension.mdIcon)).div(2))
+                .offset {
+                    IntOffset(
+                        y = -cartOffsetY.div(2),
+                        x = 0,
+                    )
+                }
                 .border(
-                    width = Dimension.sm,
-                    color = MaterialTheme.colors.background,
+                    width = Dimension.sm.div(2),
+                    color = MaterialTheme.colors.primary,
                     shape = CircleShape,
-                )
-                .padding(Dimension.sm),
+                ),
             painter = painterResource(id = R.drawable.ic_shopping_bag),
             backgroundColor = if (activeRoute == Screen.Cart.route) MaterialTheme.colors.primary
             else MaterialTheme.colors.background,
@@ -407,6 +440,51 @@ fun ProductItemLayout(
     onChangeBookmarkState: () -> Unit,
     image: Int,
 ) {
+    val (productFloatToCartAnim, setFloatingAnim) =
+        remember { mutableStateOf(false) }
+    val productTransition = updateTransition(
+        targetState = productFloatToCartAnim,
+        label = "Product transition"
+    )
+    val (floatingProductOffset, setFloatingProductOffset) = remember {
+        mutableStateOf(cartOffset)
+    }
+    val animatedFloatingProductOffset by productTransition.animateIntOffset(
+        label = "Product transition - offset",
+        targetValueByState = {
+            if (it) floatingProductOffset
+            else IntOffset(x = 0, y = 0)
+        },
+        transitionSpec = {
+            TweenSpec(
+                durationMillis = 1000,
+                easing = LinearEasing,
+            )
+        },
+    )
+
+    val (floatingProductSize, setFloatingProductSize) = remember {
+        mutableStateOf(0)
+    }
+    val animatedFloatProductSize by productTransition.animateInt(
+        label = "Product transition - size",
+        targetValueByState = {
+            if (it) 0
+            else floatingProductSize
+        },
+        transitionSpec = {
+            TweenSpec(
+                durationMillis = 1000,
+                easing = LinearEasing,
+            )
+        }
+    )
+    LaunchedEffect(key1 = onCart) {
+        if (!onCart) {
+            setFloatingAnim(false)
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -418,25 +496,6 @@ fun ProductItemLayout(
             ),
         verticalArrangement = Arrangement.spacedBy(Dimension.pagePadding)
     ) {
-        val (productFloatToCartAnim, setFloatingAnim) =
-            remember { mutableStateOf(false) }
-        val productTransition = updateTransition(
-            targetState = productFloatToCartAnim,
-            label = "Product transition"
-        )
-        val animatedFloatingProductOffset by productTransition.animateIntOffset(
-            label = "Product transition - offset",
-            targetValueByState = {
-                if (it) cartOffset
-                else IntOffset(x = 0, y = 0)
-            },
-            transitionSpec = {
-                TweenSpec(
-                    durationMillis = 500,
-                    easing = LinearEasing,
-                )
-            }
-        )
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
@@ -457,15 +516,9 @@ fun ProductItemLayout(
                 painter = rememberImagePainter(data = image),
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .clip(MaterialTheme.shapes.medium)
-                    .rotate(-35f),
-            )
-            Image(
-                painter = rememberImagePainter(data = image),
-                contentDescription = null,
-                modifier = Modifier
-                    .offset { animatedFloatingProductOffset }
+                    .onGloballyPositioned {
+                        setFloatingProductSize(it.size.width)
+                    }
                     .fillMaxSize()
                     .clip(MaterialTheme.shapes.medium)
                     .rotate(-35f),
@@ -501,10 +554,13 @@ fun ProductItemLayout(
                 ReactiveCartIcon(
                     isOnCart = onCart,
                     onCartChange = {
-                        if (!onCart) {
-                            setFloatingAnim(true)
+                        /** Prevent multiple click */
+                        if (animatedFloatProductSize !in 1..floatingProductSize.dec()) {
+                            if (!onCart) {
+                                setFloatingAnim(true)
+                            }
+                            onChangeCartState()
                         }
-                        onChangeCartState()
                     },
                 )
             }
@@ -518,6 +574,28 @@ fun ProductItemLayout(
         }
 
     }
+    Image(
+        painter = rememberImagePainter(data = image),
+        contentDescription = null,
+        modifier = Modifier
+            .onGloballyPositioned {
+                it
+                    .positionInWindow()
+                    .let { originalOffset ->
+                        val requiredX = cartOffset.x - originalOffset.x
+                        val requiredY = cartOffset.y - originalOffset.y
+                        setFloatingProductOffset(
+                            IntOffset(
+                                x = requiredX.roundToInt(),
+                                y = requiredY.roundToInt(),
+                            )
+                        )
+                    }
+            }
+            .offset { animatedFloatingProductOffset }
+            .size(animatedFloatProductSize.getDp())
+            .rotate(-35f),
+    )
 }
 
 @Composable

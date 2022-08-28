@@ -19,6 +19,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -58,7 +59,7 @@ fun OnboardScreen(
             speed = 2f,
             restartOnPlay = true,
 
-            )
+        )
 
         LottieAnimation(
             modifier = Modifier
@@ -67,6 +68,7 @@ fun OnboardScreen(
             progress = progress,
             composition = composition,
             contentScale = ContentScale.Crop,
+
         )
 
         Column(
@@ -86,13 +88,17 @@ fun OnboardScreen(
                 text = buildAnnotatedString {
                     append("Journeys always start with ")
                     withStyle(
-                        style = MaterialTheme.typography.h3
-                            .copy(color = MaterialTheme.colors.secondary)
-                            .toSpanStyle()
+                        style = MaterialTheme.typography.h1
+                            .copy(
+                                fontFamily = FontFamily.Cursive,
+                                color = MaterialTheme.colors.secondary,
+                                fontWeight = FontWeight.Black,
+                            )
+                            .toSpanStyle(),
                     ) {
                         append(stringResource(id = R.string.app_name))
-                        append(" 🤩")
                     }
+                    append("  🤩")
                 },
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.h3.copy(

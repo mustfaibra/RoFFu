@@ -1,9 +1,13 @@
 package com.mustfaibra.shoesstore.screens.splash
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -13,12 +17,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.sealed.Screen
+import com.mustfaibra.shoesstore.ui.theme.Dimension
 import com.skydoves.whatif.whatIfNotNull
 import kotlinx.coroutines.delay
 
@@ -30,14 +39,7 @@ fun SplashScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colors.primary,
-                        MaterialTheme.colors.secondary,
-                    )
-                )
-            ),
+            .background(MaterialTheme.colors.background),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -70,12 +72,28 @@ fun SplashScreen(
                 onSplashFinished(Screen.Onboard)
             }
         }
-
+        val appName = stringResource(id = R.string.app_name)
         Text(
-            text = stringResource(id = R.string.app_name),
-            style = MaterialTheme.typography.h1.copy(fontSize = 64.sp),
-            color = MaterialTheme.colors.onPrimary,
-            fontFamily = FontFamily.Cursive,
+            text = buildAnnotatedString {
+                                        append(appName.take(2))
+                withStyle(
+                    style = MaterialTheme.typography.h1
+                        .copy(
+                            fontSize = 64.sp,
+                            color = MaterialTheme.colors.primary,
+                            fontFamily = FontFamily.Cursive,
+                        ).toSpanStyle(),
+                ){
+                    append(appName.slice(2..3))
+                }
+                append(appName.takeLast(1))
+            },
+            style = MaterialTheme.typography.h1
+                .copy(
+                    fontSize = 64.sp,
+                    color = MaterialTheme.colors.secondary,
+                    fontFamily = FontFamily.Cursive,
+                ),
         )
     }
 }

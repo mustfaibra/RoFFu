@@ -20,7 +20,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.core.text.layoutDirection
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
@@ -41,8 +44,10 @@ import io.ktor.client.features.*
 import io.ktor.client.statement.*
 import org.json.JSONException
 import org.json.JSONObject
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.roundToInt
 
 /** An extension function that is used to convert the API response to a JSONObject & return the field message from it */
 suspend fun HttpResponse.getMessage(): String {

@@ -27,6 +27,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        benchmark {
+            signingConfig signingConfigs.debug
+            matchingFallbacks = ['release']
+            debuggable false
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -39,7 +44,8 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerExtensionVersion "1.2.0"
+        kotlinCompilerVersion "1.7.0"
     }
     packagingOptions {
         resources {
@@ -50,12 +56,11 @@ android {
 
 dependencies {
 
-    //noinspection GradleDependency
     implementation 'androidx.core:core-ktx:1.7.0'
-    implementation "androidx.compose.ui:ui:1.3.0-alpha01"
-    implementation "androidx.compose.material:material:1.3.0-alpha01"
+    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation 'androidx.activity:activity-compose:1.5.0'
+    implementation 'androidx.activity:activity-compose:1.5.1'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
@@ -65,16 +70,17 @@ dependencies {
 
 
     /** Compose navigation */
-    def compose_navigation_version = "2.5.0"
+    def compose_navigation_version = "2.5.1"
     implementation "androidx.navigation:navigation-compose:$compose_navigation_version"
 
     // Ktor
-    def ktor_version = '1.5.0'
-    implementation "io.ktor:ktor-client-core:$ktor_version"
-    implementation "io.ktor:ktor-client-android:$ktor_version"
-    implementation "io.ktor:ktor-client-serialization:$ktor_version"
-    implementation "io.ktor:ktor-client-logging:$ktor_version"
-    implementation "io.ktor:ktor-client-auth:$ktor_version"
+    def core_ktor_version = '1.5.0'
+    implementation "io.ktor:ktor-client-core:$core_ktor_version"
+    def android_ktor_version = "1.6.3"
+    implementation "io.ktor:ktor-client-android:$android_ktor_version"
+    implementation "io.ktor:ktor-client-serialization:$core_ktor_version"
+    implementation "io.ktor:ktor-client-logging:$core_ktor_version"
+    implementation "io.ktor:ktor-client-auth:$core_ktor_version"
     implementation "ch.qos.logback:logback-classic:1.2.3"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0"
 
@@ -88,12 +94,13 @@ dependencies {
     implementation "com.jakewharton.timber:timber:$timber_version"
 
     // Coroutines
-    def coroutine_version = "1.6.1"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
+    def core_coroutine_version = "1.6.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$core_coroutine_version"
+    def android_coroutine_version = "1.6.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$android_coroutine_version"
 
     // Coroutine Lifecycle Scopes
-    def lifecycle_version = "2.5.0"
+    def lifecycle_version = "2.5.1"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
 
@@ -103,9 +110,8 @@ dependencies {
     implementation "io.coil-kt:coil-svg:$compose_coil_version"
 
     //Dagger - Hilt
-    implementation "com.google.dagger:hilt-android:2.39.1"
-    kapt "com.google.dagger:hilt-android-compiler:2.39.1"
-    implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
+    implementation "com.google.dagger:hilt-android:$hilt_plugin_version"
+    kapt "com.google.dagger:hilt-android-compiler:$hilt_plugin_version"
     kapt "androidx.hilt:hilt-compiler:1.0.0"
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 
@@ -118,18 +124,12 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:$room_version"
 
     // live data with compose
-    def compose_livedata = "1.1.1"
+    def compose_livedata = "1.2.1"
     implementation "androidx.compose.runtime:runtime-livedata:$compose_livedata"
 
     // Lotti file
     def lottie_files = "4.2.1"
     implementation "com.airbnb.android:lottie-compose:$lottie_files"
-
-    // Work Manager
-    def work_version = "2.7.1"
-    def hilt_work_version = "1.0.0"
-    implementation("androidx.work:work-runtime-ktx:$work_version")
-    implementation("androidx.hilt:hilt-work:$hilt_work_version")
 
     // Logging
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.0'
@@ -148,6 +148,6 @@ dependencies {
     def data_store_version = "1.0.0"
     implementation "androidx.datastore:datastore-preferences:$data_store_version"
 
-    // Whatif
+    // WhatIf
     implementation "com.github.skydoves:whatif:1.1.1"
 }
