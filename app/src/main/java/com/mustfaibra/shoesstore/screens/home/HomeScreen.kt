@@ -2,7 +2,6 @@ package com.mustfaibra.shoesstore.screens.home
 
 import android.os.Handler
 import android.os.Looper
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -26,7 +25,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -34,7 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.rememberImagePainter
+import coil.compose.AsyncImage
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -300,8 +298,8 @@ fun AdvertisementsPager(
             itemSpacing = Dimension.pagePadding.times(2),
         ) {
             val advertisement = advertisements[this.currentPage]
-            Image(
-                painter = rememberImagePainter(data = advertisement.image),
+            AsyncImage(
+                model = advertisement.image,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -352,7 +350,7 @@ fun ManufacturersSection(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Dimension.pagePadding.div(2)),
     ) {
-        itemsIndexed(brands) { index, (id, name, icon) ->
+        itemsIndexed(brands) { index, (_, name, icon) ->
             val backgroundColor = if (activeBrandIndex == index) MaterialTheme.colors.primary
             else MaterialTheme.colors.background
 

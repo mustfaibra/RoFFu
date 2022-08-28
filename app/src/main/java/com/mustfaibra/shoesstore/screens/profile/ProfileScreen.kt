@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import coil.compose.rememberImagePainter
 import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.components.DrawableButton
@@ -187,15 +188,14 @@ fun ProfileHeaderSection(image: Int?, name: String, email: String?, phone: Strin
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Dimension.pagePadding),
     ) {
-        Image(
-            painter = rememberImagePainter(data = image) {
-                crossfade(true)
-            },
-            contentDescription = null,
+        AsyncImage(
             modifier = Modifier
                 .size(Dimension.xlIcon)
                 .clip(CircleShape),
+            model = image,
+            contentDescription = null,
         )
+
         Column {
             Text(
                 text = name,

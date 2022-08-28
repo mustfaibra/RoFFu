@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.mustfaibra.shoesstore"
@@ -105,7 +105,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
 
     // compose coil to load images
-    def compose_coil_version = "1.4.0"
+    def compose_coil_version = "2.2.0"
     implementation "io.coil-kt:coil-compose:$compose_coil_version"
     implementation "io.coil-kt:coil-svg:$compose_coil_version"
 
@@ -116,7 +116,7 @@ dependencies {
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 
     // Room
-    def room_version = "2.4.2"
+    def room_version = "2.4.3"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
@@ -128,7 +128,7 @@ dependencies {
     implementation "androidx.compose.runtime:runtime-livedata:$compose_livedata"
 
     // Lotti file
-    def lottie_files = "4.2.1"
+    def lottie_files = "5.2.0"
     implementation "com.airbnb.android:lottie-compose:$lottie_files"
 
     // Logging
@@ -136,11 +136,11 @@ dependencies {
     implementation "com.squareup.okio:okio:3.0.0"
 
     // accompanist - Placeholder
-    def accompanist_placeholder = "0.24.1-alpha"
+    def accompanist_placeholder = "0.26.1-alpha"
     implementation "com.google.accompanist:accompanist-placeholder:$accompanist_placeholder"
 
     // accompanist - PagerView
-    def accompanist_pager = "0.24.4-alpha"
+    def accompanist_pager = "0.26.1-alpha"
     implementation "com.google.accompanist:accompanist-pager:$accompanist_pager"
     implementation "com.google.accompanist:accompanist-pager-indicators:$accompanist_pager"
 

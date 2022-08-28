@@ -7,7 +7,6 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateInt
 import androidx.compose.animation.core.animateIntOffset
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -56,7 +55,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import coil.compose.rememberImagePainter
+import coil.compose.AsyncImage
 import com.mustfaibra.shoesstore.R
 import com.mustfaibra.shoesstore.sealed.MenuOption
 import com.mustfaibra.shoesstore.sealed.Screen
@@ -512,8 +511,8 @@ fun ProductItemLayout(
                     .clip(MaterialTheme.shapes.medium)
                     .background(MaterialTheme.colors.surface),
             )
-            Image(
-                painter = rememberImagePainter(data = image),
+            AsyncImage(
+                model = image,
                 contentDescription = null,
                 modifier = Modifier
                     .onGloballyPositioned {
@@ -574,8 +573,8 @@ fun ProductItemLayout(
         }
 
     }
-    Image(
-        painter = rememberImagePainter(data = image),
+    AsyncImage(
+        model = image,
         contentDescription = null,
         modifier = Modifier
             .onGloballyPositioned {
