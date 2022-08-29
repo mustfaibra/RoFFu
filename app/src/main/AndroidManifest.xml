@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.mustfaibra.shoesstore">
+    package="com.mustfaibra.roffu">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name="com.mustfaibra.shoesstore.MyApplication"
+        android:name="com.mustfaibra.roffu.MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -22,7 +22,7 @@
             tools:targetApi="q" />
 
         <activity
-            android:name="com.mustfaibra.shoesstore.MainActivity"
+            android:name="com.mustfaibra.roffu.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.AppTemplate">
             <intent-filter>

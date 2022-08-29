@@ -10,7 +10,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.mustfaibra.shoesstore"
+        applicationId "com.mustfaibra.roffu"
         minSdk 21
         targetSdk 32
         versionCode 1
