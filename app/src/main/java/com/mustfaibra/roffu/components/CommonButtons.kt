@@ -1,9 +1,6 @@
 package com.mustfaibra.roffu.components
 
 
-import androidx.compose.animation.animateColor
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -11,26 +8,26 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.mustfaibra.roffu.ui.theme.Dimension
 
 @Composable
@@ -86,7 +83,7 @@ fun DrawableButton(
             .background(backgroundColor)
             .clickable(
                 onClick = {
-                    if(enabled) onButtonClicked()
+                    if (enabled) onButtonClicked()
                 }
             )
             .padding(paddingValues = paddingValue)
@@ -98,42 +95,6 @@ fun DrawableButton(
             painter = painter,
             contentDescription = "icon next",
             tint = iconTint,
-        )
-    }
-}
-
-@Composable
-fun DrawableButtonWithBadge(
-    modifier: Modifier = Modifier,
-    size: Dp = Dimension.md,
-    backgroundColor: Color = MaterialTheme.colors.primary,
-    iconTint: Color,
-    onButtonClicked: () -> Unit,
-    painter: Int,
-    shape: Shape = MaterialTheme.shapes.medium,
-    badge: @Composable (modifier: Modifier) -> Unit = {},
-) {
-    Box(
-        modifier = modifier
-            .shadow(elevation = Dimension.elevation, shape = shape)
-            .clip(shape)
-            .background(backgroundColor)
-            .clickable {
-                onButtonClicked()
-            }
-    ) {
-        Icon(
-            modifier = Modifier
-                .padding(Dimension.xs)
-                .size(size)
-                .align(Alignment.Center),
-            painter = painterResource(id = painter),
-            contentDescription = "icon next",
-            tint = iconTint
-        )
-        /** show the badge, it will appear only if it got passed */
-        badge(
-            modifier = Modifier.align(Alignment.TopEnd)
         )
     }
 }
@@ -170,52 +131,6 @@ fun BrushedIconButton(
             contentDescription = "icon next",
             tint = iconTint
         )
-    }
-}
-
-@Composable
-fun BrushedCustomButton(
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    brush: Brush = Brush.verticalGradient(
-        colors = listOf(
-            MaterialTheme.colors.primary,
-            MaterialTheme.colors.primaryVariant,
-        ),
-    ),
-    shape: Shape = MaterialTheme.shapes.medium,
-    contentColor: Color,
-    padding: PaddingValues = PaddingValues(horizontal = Dimension.sm, vertical = Dimension.sm),
-    text: String,
-    leadingIcon: @Composable () -> Unit = {},
-    trailingIcon: @Composable () -> Unit = {},
-    onButtonClicked: () -> Unit,
-) {
-    Button(
-        modifier = modifier
-            .shadow(
-                elevation = Dimension.elevation,
-                shape = shape,
-            )
-            .clip(shape)
-            .background(brush = brush),
-        onClick = onButtonClicked,
-        shape = shape,
-        enabled = enabled,
-        contentPadding = padding,
-        elevation = ButtonDefaults.elevation(
-            defaultElevation = Dimension.zero,
-            pressedElevation = Dimension.zero,
-        ),
-    ) {
-        leadingIcon()
-        Text(
-            text = text,
-            style = MaterialTheme.typography.button,
-            color = contentColor,
-        )
-        /** Add trailing icon */
-        trailingIcon()
     }
 }
 
@@ -280,43 +195,5 @@ fun CloseButton(
             .size(Dimension.lg),
         imageVector = Icons.Rounded.Close,
         contentDescription = "close",
-    )
-}
-
-/** Color & Rotation are reactive */
-@Composable
-fun ToggleableReactiveIcon(
-    modifier: Modifier = Modifier,
-    backgroundColor: Color = Color.Transparent,
-    iconWhenTrue: ImageVector,
-    iconWhenFalse: ImageVector,
-    iconTintWhenTrue: Color = MaterialTheme.colors.primary,
-    iconTintWhenFalse: Color = MaterialTheme.colors.secondary,
-    currentState: Boolean,
-    iconSize: Dp = 20.dp,
-    onStateChanges: () -> Unit,
-) {
-    val transition =
-        updateTransition(targetState = currentState, label = "icon state")
-
-    val icon = if (currentState) iconWhenTrue else iconWhenFalse
-    val tint by transition.animateColor(label = "tint") {
-        when (it) {
-            true -> iconTintWhenTrue
-            false -> iconTintWhenFalse
-        }
-    }
-    val rotation by transition.animateFloat(label = "rotation") { if (it) 360f else -360f }
-    Icon(
-        imageVector = icon,
-        contentDescription = null,
-        modifier = modifier
-            .rotate(rotation)
-            .clip(CircleShape)
-            .background(backgroundColor)
-            .clickable { onStateChanges() }
-            .padding(Dimension.elevation)
-            .size(iconSize),
-        tint = tint
     )
 }

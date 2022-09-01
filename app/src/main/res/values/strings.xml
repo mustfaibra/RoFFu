@@ -43,4 +43,6 @@
     <string name="please_select_payment">Pleaes select payment method!</string>
     <string name="size">Size</string>
     <string name="color">Color</string>
+    <string name="onboard">Onboard</string>
+    <string name="signup">Sign up</string>
 </resources>

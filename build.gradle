@@ -1,7 +1,7 @@
 buildscript {
     ext {
         compose_version = '1.2.1'
-        hilt_plugin_version = '2.42'
+        hilt_plugin_version = '2.43.2'
         kotlin_version = '1.7.0'
     }
     dependencies {

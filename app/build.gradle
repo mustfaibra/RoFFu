@@ -56,8 +56,9 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.core:core-ktx:1.8.0'
     implementation "androidx.compose.ui:ui:$compose_version"
+    //noinspection GradleDependency
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.activity:activity-compose:1.5.1'
@@ -130,10 +131,6 @@ dependencies {
     // Lotti file
     def lottie_files = "5.2.0"
     implementation "com.airbnb.android:lottie-compose:$lottie_files"
-
-    // Logging
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.12.0'
-    implementation "com.squareup.okio:okio:3.0.0"
 
     // accompanist - Placeholder
     def accompanist_placeholder = "0.26.1-alpha"

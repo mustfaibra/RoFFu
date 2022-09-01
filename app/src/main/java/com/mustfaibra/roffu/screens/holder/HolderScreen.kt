@@ -63,23 +63,43 @@ fun HolderScreen(
     val destinations = remember {
         listOf(Screen.Home, Screen.Notifications, Screen.Bookmark, Screen.Profile)
     }
+
+    /** Our navigation controller that the MainActivity provides */
     val controller = LocalNavHost.current
-    val currentDestinationAsState = getActiveRoute(navController = controller)
-    val productsOnCartIds = holderViewModel.productsOnCartIds
-    val productsOnBookmarksIds = holderViewModel.productsOnBookmarksIds
-    val user by UserPref.user
-    val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
+
+    /** The current active navigation route */
+    val currentRouteAsState = getActiveRoute(navController = controller)
+
+    /** The cart items list */
     val cartItems = holderViewModel.cartItems
+
+    /** The ids of all the products on user's cart */
+    val productsOnCartIds = holderViewModel.productsOnCartIds
+
+    /** The ids of all the bookmarked products on user's bookmarks */
+    val productsOnBookmarksIds = holderViewModel.productsOnBookmarksIds
+
+    /** The current logged user, which is null by default */
+    val user by UserPref.user
+
+    /** The main app's scaffold state */
+    val scaffoldState = rememberScaffoldState()
+
+    /** The coroutine scope */
+    val scope = rememberCoroutineScope()
+
+    /** Dynamic snack bar color */
     val (snackBarColor, setSnackBarColor) = remember {
         mutableStateOf(Color.White)
     }
 
+    /** SnackBar appear/disappear transition */
     val snackBarTransition = updateTransition(
         targetState = scaffoldState.snackbarHostState,
         label = "SnackBarTransition"
     )
 
+    /** SnackBar animated offset */
     val snackBarOffsetAnim by snackBarTransition.animateDp(
         label = "snackBarOffsetAnim",
         transitionSpec = {
@@ -100,6 +120,7 @@ fun HolderScreen(
     }
 
     Box {
+        /** Cart offset on the screen */
         val (cartOffset, setCartOffset) = remember {
             mutableStateOf(IntOffset(0, 0))
         }
@@ -114,18 +135,18 @@ fun HolderScreen(
             onStatusBarColorChange = onStatusBarColorChange,
             bottomNavigationContent = {
                 if (
-                    currentDestinationAsState in destinations.map { it.route }
-                    || currentDestinationAsState == Screen.Cart.route
+                    currentRouteAsState in destinations.map { it.route }
+                    || currentRouteAsState == Screen.Cart.route
                 ) {
                     AppBottomNav(
-                        activeRoute = currentDestinationAsState,
+                        activeRoute = currentRouteAsState,
                         backgroundColor = MaterialTheme.colors.surface,
                         bottomNavDestinations = destinations,
-                        onCartOffsetMeasured = {offset->
+                        onCartOffsetMeasured = { offset ->
                             setCartOffset(offset)
                         },
                         onActiveRouteChange = {
-                            if (it != currentDestinationAsState) {
+                            if (it != currentRouteAsState) {
                                 /** We should navigate to that new route */
                                 controller.navigate(it) {
                                     popUpTo(Screen.Home.route) {
@@ -200,6 +221,8 @@ fun HolderScreen(
                 }
             }
         )
+
+        /** The snack bar UI */
         CustomSnackBar(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -388,9 +411,6 @@ fun ScaffoldSection(
                         onUpdateCartState = onUpdateCartRequest,
                         onUpdateBookmarksState = onUpdateBookmarkRequest,
                         onBackRequested = onBackRequested,
-                        onNavigateToCartRequested = {
-                            onNavigationRequested(Screen.Cart.route, false)
-                        }
                     )
                 }
             }

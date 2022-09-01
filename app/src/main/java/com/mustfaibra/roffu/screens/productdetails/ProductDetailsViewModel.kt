@@ -59,10 +59,18 @@ class ProductDetailsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Update the current product's color.
+     * @param color The new color name
+     */
     fun updateSelectedColor(color: String) {
         _selectedColor.value = color
     }
 
+    /**
+     * Update the current product's size.
+     * @param size the new selected size.
+     */
     fun updateSelectedSize(size: Int) {
         /** Check when user click again on the same size ! */
         if(size == _selectedSize.value) return

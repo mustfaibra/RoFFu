@@ -218,7 +218,7 @@ abstract class RoomDb : RoomDatabase() {
 
         private suspend fun populateDatabase(dao: RoomDao, scope: CoroutineScope) {
             /** Save users */
-            scope.launch{
+            scope.launch {
                 dao.saveUser(
                     User(
                         userId = 1,

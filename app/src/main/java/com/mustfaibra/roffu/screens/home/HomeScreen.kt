@@ -103,6 +103,7 @@ fun HomeScreen(
         }
     }
 
+    /** Staring our handler only once when the app is launched */
     LaunchedEffect(key1 = Unit) {
         mainHandler.post(autoPagerScrollCallback)
     }
@@ -187,10 +188,6 @@ fun HomeScreen(
 
         /** Handling what to show depending on brands ui state */
         when (brandsUiState) {
-            is UiState.Idle -> {
-                /** it's idle, not sure */
-
-            }
             is UiState.Loading -> {
                 /** Still loading */
 
@@ -233,7 +230,7 @@ fun HomeScreen(
                     )
                 }
             }
-            is UiState.Error -> {
+            else -> {
                 /** An error occur */
             }
         }

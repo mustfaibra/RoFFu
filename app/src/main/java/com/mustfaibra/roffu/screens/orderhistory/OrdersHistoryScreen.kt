@@ -66,7 +66,6 @@ fun OrdersHistoryScreen(
             is UiState.Success -> {
                 items(orders) { order ->
                     OrderItemLayout(
-                        orderId = order.order.orderId,
                         orderedAt = order.order.createdAt,
                         total = "$${order.order.total}",
                         isDelivered = order.order.isDelivered,
@@ -85,7 +84,6 @@ fun OrdersHistoryScreen(
 
 @Composable
 fun OrderItemLayout(
-    orderId: String,
     orderedAt: String,
     total: String,
     isDelivered: Boolean,

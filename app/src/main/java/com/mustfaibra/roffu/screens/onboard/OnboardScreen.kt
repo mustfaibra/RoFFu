@@ -52,7 +52,7 @@ fun OnboardScreen(
         val composition by rememberLottieComposition(
             spec = LottieCompositionSpec.RawRes(R.raw.walking_shoes),
         )
-        // to control the animation speed
+        /** to control the animation speed */
         val progress by animateLottieCompositionAsState(
             composition,
             iterations = LottieConstants.IterateForever,

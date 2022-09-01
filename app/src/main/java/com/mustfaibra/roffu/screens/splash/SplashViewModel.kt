@@ -31,6 +31,7 @@ class SplashViewModel @Inject constructor(
         it[APP_LAUNCHED] ?: false
     }
 
+    /** Logged user's id as flow  */
     val loggedUserId = context.dataStore.data.map {
         it[LOGGED_USER_ID]
     }

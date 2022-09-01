@@ -14,11 +14,11 @@ class BrandsRepository @Inject constructor(
     suspend fun getBrandsAdvertisements(): DataResponse<List<Advertisement>> {
         /** First we should check the local storage */
         dao.getAdvertisements().let {
-            if (it.isNotEmpty()) {
-                return DataResponse.Success(data = it)
+            return if (it.isNotEmpty()) {
+                DataResponse.Success(data = it)
             } else {
                 /** Now we should fetch from the remote server */
-                return DataResponse.Error(error = Error.Empty)
+                DataResponse.Error(error = Error.Empty)
             }
         }
     }
@@ -26,11 +26,11 @@ class BrandsRepository @Inject constructor(
     suspend fun getBrandsWithProducts(): DataResponse<List<Manufacturer>> {
         /** First we should check the local storage */
         dao.getManufacturersWithProducts().getStructuredManufacturers().let {
-            if (it.isNotEmpty()) {
-                return DataResponse.Success(data = it)
+            return if (it.isNotEmpty()) {
+                DataResponse.Success(data = it)
             } else {
                 /** Now we should fetch from the remote server */
-                return DataResponse.Error(error = Error.Empty)
+                DataResponse.Error(error = Error.Empty)
             }
         }
     }

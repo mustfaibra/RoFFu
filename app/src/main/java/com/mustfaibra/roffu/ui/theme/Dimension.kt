@@ -14,7 +14,6 @@ object Dimension {
 
     val smIcon = 24.dp
     val mdIcon = 36.dp
-    val lgIcon = 48.dp
     val xlIcon = 96.dp
 
     val elevation = 4.dp

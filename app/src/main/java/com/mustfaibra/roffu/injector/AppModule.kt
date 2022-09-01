@@ -8,16 +8,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import io.ktor.client.*
-import io.ktor.client.engine.android.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.features.logging.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
-
-// 3/20/2022
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -43,38 +36,15 @@ object AppModule {
         .databaseBuilder(
             context.applicationContext,
             RoomDb::class.java,
-            "ShoesStoreDatabase",
+            "RoFFuDatabase",
         )
         .fallbackToDestructiveMigration()
         .addCallback(populateDataCallback)
         .build()
 
-    /** A function to provide a single instance of the local database DAO throughout our app */
+    /** A function to provide a single instance of the local database Dao throughout our app */
     @Provides
     @Singleton
     fun provideDaoInstance(db: RoomDb) = db.getDao()
 
-
-    /** provide our api client instance */
-    @Singleton
-    @Provides
-    fun provideClient() = HttpClient(Android) {
-        install(JsonFeature) {
-            serializer = KotlinxSerializer(
-                kotlinx.serialization.json.Json {
-                    prettyPrint = true
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                }
-            )
-        }
-        install(Logging) {
-            logger = Logger.DEFAULT
-            level = LogLevel.ALL
-        }
-        engine {
-            connectTimeout = 5000
-            socketTimeout = 5000
-        }
-    }
 }

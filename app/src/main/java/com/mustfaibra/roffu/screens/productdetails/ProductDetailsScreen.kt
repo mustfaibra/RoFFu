@@ -52,7 +52,6 @@ fun ProductDetailsScreen(
     isOnBookmarksStateProvider: () -> Boolean,
     onUpdateCartState: (productId: Int) -> Unit,
     onUpdateBookmarksState: (productId: Int) -> Unit,
-    onNavigateToCartRequested: () -> Unit,
     onBackRequested: () -> Unit,
     productDetailsViewModel: ProductDetailsViewModel = hiltViewModel(),
 ) {
@@ -85,13 +84,12 @@ fun ProductDetailsScreen(
             modifier = Modifier
                 .addMoveAnimation(
                     orientation = Orientation.Vertical,
-                    from = -100.dp,
+                    from = (-100).dp,
                     to = 0.dp,
                     duration = 700,
                 ),
             cartItemsCount = cartItemsCount,
             onBackRequested = onBackRequested,
-            onNavigateToCartRequested = onNavigateToCartRequested,
         )
         Column(
             modifier = Modifier.weight(1f),
@@ -159,7 +157,7 @@ fun ProductDetailsScreen(
                                 .align(Alignment.TopStart)
                                 .addMoveAnimation(
                                     orientation = Orientation.Horizontal,
-                                    from = -60.dp,
+                                    from = (-60).dp,
                                     to = 0.dp,
                                     duration = 700,
                                 ),
@@ -239,7 +237,6 @@ fun DetailsHeader(
     modifier: Modifier = Modifier,
     cartItemsCount: Int,
     onBackRequested: () -> Unit,
-    onNavigateToCartRequested: () -> Unit,
 ) {
     Row(
         modifier = modifier

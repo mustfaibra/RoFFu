@@ -35,6 +35,7 @@ fun SplashScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+
         val isAppLaunchedBefore by splashViewModel.isAppLaunchedBefore
             .collectAsState(initial = false)
         val loggedUserId by splashViewModel.loggedUserId
@@ -66,8 +67,9 @@ fun SplashScreen(
         }
         val appName = stringResource(id = R.string.app_name)
         Text(
+            /** Manipulate app's name with a different text styles */
             text = buildAnnotatedString {
-                                        append(appName.take(2))
+                append(appName.take(2))
                 withStyle(
                     style = MaterialTheme.typography.h1
                         .copy(
