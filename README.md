@@ -1,19 +1,29 @@
+# Table of content
+1. [RoFFu](#roffu)
+2. [Demo](#demo)
+3. [Want to try it?](#want-to-try-it)
+4. [Screenshots](#screenshots)
+5. [Tech Used](#tech-used)
+6. [Want to connect?](#do-you-want-more)
+7. [You liked this?](#you-like-what-iam-doing)
+
+
 # 👟RoFFu
 
 RoFFu is an online store specialized in sports shoes & Sneakers of many famous companies like Nike & Adidas, with a modern UI & beautiful animations like adding products to cart, bookmarking and change the sizes 🤩🔥
 
 
-# 🤳🏾 Demo
+# 🤳🏾Demo
 
 <img src="https://github.com/mustfaibra/RoFFu/blob/master/app/demo/ruffo_demo.gif" width="200">
 
 
-# 🧐 Want to try it?
+# 🧐Want to try it?
 
 You can download the demo from [here](https://github.com/mustfaibra/RoFFu/blob/master/app/release/roffu.apk).
 
 
-# 📸 Screenshots
+# 📸Screenshots
 
 <img src="https://github.com/mustfaibra/RoFFu/blob/master/app/screenshots/splash.jpg" width="200">
 <img src="https://github.com/mustfaibra/RoFFu/blob/master/app/screenshots/landing.jpg" width="200">
@@ -26,7 +36,7 @@ You can download the demo from [here](https://github.com/mustfaibra/RoFFu/blob/m
 <img src="https://github.com/mustfaibra/RoFFu/blob/master/app/screenshots/history.jpg" width="200">
 
 
-# 🧑🏾‍💻 Tech used
+# 🧑🏾‍💻Tech used
 
 * [Jetpack compose](https://developer.android.com/jetpack/compose) for UI
 * Compose [Navigation](https://developer.android.com/jetpack/compose/navigation)
@@ -44,7 +54,7 @@ You can download the demo from [here](https://github.com/mustfaibra/RoFFu/blob/m
 * [WhatIf](https://github.com/skydoves/WhatIf) for handling single if-else statements, nullable, collections, and boolean smoothly and in readable & cleaner way.
 
 
-# 🔗 Do you Want more? 🤩
+# 🔗Do you Want more?
 
 Feel free to connect or to follow me here 👇🏾
 
@@ -55,7 +65,7 @@ Feel free to connect or to follow me here 👇🏾
 Also, don't forget to ⭐ this repository 😁
 
 
-# 😍 You like what I'm doing?
+# 😍You like what Iam doing?
 
 How about buying me a coffee so that I keep doing it 😁👇🏾
 
